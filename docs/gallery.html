@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>画廊 - 青翔未阔工作室</title>
+    <link rel="icon" type="image/webp" href="/favicon.webp">
+    <style>
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --primary: #2563eb; --primary-hover: #1d4ed8; --primary-light: #eff6ff;
+            --primary-subtle: rgba(37,99,235,0.08); --secondary: #0d9488;
+            --surface: #ffffff; --bg: #f8fafc;
+            --text-primary: #0f172a; --text-secondary: #64748b; --text-tertiary: #94a3b8;
+            --border: #e2e8f0; --navbar-bg: rgba(15,23,42,0.75);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06); --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+            --radius-sm: 8px; --radius-md: 14px;
+            --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
+            --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            --container: 1100px; --nav-height: 64px;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-sans); background: var(--bg); color: var(--text-primary);
+            line-height: 1.6; -webkit-font-smoothing: antialiased;
+            min-height: 100vh; display: flex; flex-direction: column;
+        }
+        .navbar { position:sticky; top:0; width:100%; height:var(--nav-height); z-index:100;
+            background:var(--navbar-bg); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+            border-bottom:1px solid rgba(255,255,255,0.08); }
+        .navbar-inner { max-width:var(--container); margin:0 auto; padding:0 24px;
+            display:flex; align-items:center; justify-content:space-between; height:100%; }
+        .navbar-brand { display:flex; align-items:center; gap:10px; text-decoration:none; color:#fff;
+            font-weight:600; font-size:1.15rem; letter-spacing:0.3px; transition:opacity var(--transition); }
+        .navbar-brand:hover { opacity:0.85; }
+        .back-link { display:inline-flex; align-items:center; gap:6px; padding:8px 18px;
+            background:rgba(37,99,235,0.15); color:#fff; text-decoration:none;
+            border-radius:40px; font-size:0.88rem; font-weight:500;
+            backdrop-filter:blur(4px); border:1px solid rgba(147,197,253,0.35);
+            transition:all var(--transition); white-space:nowrap; }
+        .back-link:hover { background:rgba(37,99,235,0.3); border-color:rgba(147,197,253,0.6); transform:scale(1.02); }
+        .main { flex:1; padding:36px 24px 60px; }
+        .container { max-width:var(--container); margin:0 auto; }
+        .page-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;
+            gap:16px; margin-bottom:28px; }
+        .page-header h1 { font-size:clamp(1.4rem,3vw,1.8rem); font-weight:700; color:var(--text-primary); }
+        .tabs { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:24px; }
+        .tab-btn { padding:9px 22px; background:var(--surface); color:var(--text-secondary);
+            border:1px solid var(--border); border-radius:40px; font-size:0.88rem; cursor:pointer;
+            transition:all var(--transition); font-weight:500; }
+        .tab-btn:hover { border-color:var(--primary); color:var(--primary); }
+        .tab-btn.active { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:#fff; border-color:var(--primary); }
+        /* Grid */
+        .gallery-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+        .gallery-item { position:relative; border-radius:var(--radius-sm); overflow:hidden;
+            cursor:pointer; background:var(--surface); border:1px solid var(--border);
+            aspect-ratio:4/3; transition:transform var(--transition), box-shadow var(--transition); }
+        .gallery-item:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); }
+        .gallery-item img { width:100%; height:100%; object-fit:cover; display:block;
+            transition:transform 0.3s ease; pointer-events:none; -webkit-user-drag:none;
+            user-select:none; -webkit-user-select:none; }
+        .gallery-item:hover img { transform:scale(1.05); }
+        .gallery-item::after { content:''; position:absolute; inset:0; z-index:1; }
+        .gallery-item .item-overlay { position:absolute; bottom:0; left:0; right:0;
+            padding:10px 14px; background:linear-gradient(transparent, rgba(0,0,0,0.6));
+            color:#fff; font-size:0.82rem; opacity:0; transition:opacity var(--transition); }
+        .gallery-item:hover .item-overlay { opacity:1; }
+        /* Lightbox */
+        .lightbox { display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+            z-index:2000; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px);
+            justify-content:center; align-items:center; padding:40px; }
+        .lightbox.active { display:flex; }
+        .lightbox img { max-width:100%; max-height:100%; object-fit:contain; border-radius:var(--radius-sm);
+            box-shadow:0 20px 60px rgba(0,0,0,0.5); animation:lbIn 0.25s ease; }
+        @keyframes lbIn { from { transform:scale(0.92); opacity:0.5; } to { transform:scale(1); opacity:1; } }
+        .lightbox-close { position:absolute; top:20px; right:24px; background:none; border:none;
+            color:#fff; cursor:pointer; padding:8px; opacity:0.7; transition:opacity var(--transition); }
+        .lightbox-close:hover { opacity:1; }
+        .lightbox-nav { position:absolute; top:50%; transform:translateY(-50%);
+            background:rgba(255,255,255,0.1); border:none; color:#fff; cursor:pointer;
+            padding:14px 18px; border-radius:50%; transition:all var(--transition); }
+        .lightbox-nav:hover { background:rgba(255,255,255,0.2); }
+        .lightbox-nav.prev { left:16px; }
+        .lightbox-nav.next { right:16px; }
+        .lightbox-counter { position:absolute; bottom:24px; left:50%; transform:translateX(-50%);
+            color:rgba(255,255,255,0.6); font-size:0.85rem; letter-spacing:1px; }
+        /* States */
+        .loading-state { text-align:center; padding:80px 20px; color:var(--text-secondary); }
+        .spinner { display:inline-block; width:22px; height:22px; margin-right:8px;
+            border:2px solid var(--border); border-top-color:var(--primary); border-radius:50%;
+            animation:spin 0.8s linear infinite; vertical-align:middle; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .empty-state { text-align:center; padding:80px 20px; color:var(--text-tertiary); font-size:0.95rem; }
+        .error-msg { background:#fef2f2; border:1px solid #fecaca; color:#b91c1c;
+            padding:14px 18px; border-radius:var(--radius-sm); margin-bottom:16px; font-size:0.88rem; }
+        .footer { background:#0f172a; text-align:center; padding:28px 24px;
+            color:var(--text-tertiary); font-size:0.82rem; border-top:1px solid rgba(255,255,255,0.06); }
+        .footer-copy { opacity:0.6; }
+        @media (max-width:640px) {
+            .page-header { flex-direction:column; align-items:flex-start; }
+            .navbar-inner { padding:0 16px; }
+            .main { padding:24px 16px 40px; }
+            .gallery-grid { grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; }
+            .lightbox { padding:16px; }
+            .lightbox-nav { padding:10px 14px; }
+        }
+        @media (prefers-reduced-motion:reduce) {
+            *, *::before, *::after { animation-duration:0.01ms!important; transition-duration:0.01ms!important; }
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="navbar-brand">
+                <img src="/favicon.webp" alt="青翔未阔工作室" width="28" height="28" style="border-radius:5px;flex-shrink:0;">
+                <span>青翔未阔工作室</span>
+            </a>
+            <a href="index.html" class="back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+                返回首页
+            </a>
+        </div>
+    </header>
+
+    <div class="main">
+        <div class="container">
+            <div class="page-header">
+                <h1>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-4px;margin-right:8px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    画廊
+                </h1>
+            </div>
+
+            <div class="tabs" id="tabBar">
+                <button class="tab-btn active" data-path="">全部</button>
+            </div>
+
+            <div id="galleryContainer">
+                <div class="loading-state"><span class="spinner"></span>正在加载图片列表</div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-copy">2026 青翔未阔工作室</div>
+    </footer>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lbClose" aria-label="关闭">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <button class="lightbox-nav prev" id="lbPrev">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <img id="lbImage" src="" alt="" draggable="false" style="pointer-events:none;user-select:none;-webkit-user-drag:none;">
+        <button class="lightbox-nav next" id="lbNext">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="lightbox-counter" id="lbCounter"></div>
+    </div>
+
+    <script>
+        const CONFIG = { owner: 'TidalStarNan', repo: 'QxwkFiles', branch: 'main' };
+        const IMG_EXTS = ['png','jpg','jpeg','gif','webp','svg','bmp'];
+        const galleryDir = 'image-gallery';
+
+        let allImages = {};      // { category: [items] }
+        let currentImages = [];
+        let lbIndex = 0;
+
+        // ===== GitHub API =====
+        async function fetchDir(path) {
+            const url = `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${path}?ref=${CONFIG.branch}`;
+            const r = await fetch(url);
+            if (!r.ok) throw new Error(`请求失败 (${r.status})`);
+            return r.json();
+        }
+
+        function isImage(file) { return IMG_EXTS.includes(file.name.split('.').pop().toLowerCase()); }
+
+        // ===== Load Gallery =====
+        async function loadGallery() {
+            const container = document.getElementById('galleryContainer');
+            const tabBar = document.getElementById('tabBar');
+            try {
+                const items = await fetchDir(galleryDir);
+                const dirs = items.filter(i => i.type === 'dir');
+                const rootFiles = items.filter(i => i.type === 'file' && isImage(i));
+
+                allImages = {};
+                // Root level images
+                if (rootFiles.length) allImages['全部'] = rootFiles;
+
+                // Subdirectory categories
+                for (const dir of dirs) {
+                    try {
+                        const files = await fetchDir(dir.path);
+                        const imgs = files.filter(f => f.type === 'file' && isImage(f));
+                        if (imgs.length) allImages[dir.name] = imgs;
+                    } catch (e) { /* skip failed dirs */ }
+                }
+
+                // Build tabs
+                const categories = Object.keys(allImages);
+                tabBar.innerHTML = categories.map((cat, i) =>
+                    `<button class="tab-btn${i===0?' active':''}" data-category="${escAttr(cat)}">${esc(cat)}</button>`
+                ).join('');
+
+                // Set up tab events
+                tabBar.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        tabBar.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        renderGallery(this.dataset.category);
+                    });
+                });
+
+                if (categories.length) {
+                    renderGallery(categories[0]);
+                } else {
+                    container.innerHTML = '<div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;margin-bottom:12px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><div>画廊暂无内容</div></div>';
+                }
+            } catch (e) {
+                container.innerHTML = `<div class="error-msg">❌ 加载失败：${esc(e.message)}</div><div class="empty-state">请检查网络连接或稍后重试。</div>`;
+                tabBar.innerHTML = '';
+            }
+        }
+
+        // ===== Render =====
+        function renderGallery(category) {
+            const container = document.getElementById('galleryContainer');
+            const imgs = allImages[category];
+            if (!imgs || !imgs.length) {
+                container.innerHTML = '<div class="empty-state">📭 该分类暂无图片</div>';
+                return;
+            }
+            currentImages = imgs;
+            let html = '<div class="gallery-grid">';
+            imgs.forEach((img, idx) => {
+                const name = img.name.replace(/\.[^.]+$/, '');
+                html += `<div class="gallery-item" data-index="${idx}" onclick="openLightbox(${idx})" oncontextmenu="return false">
+                    <img src="${img.download_url}" alt="${escAttr(name)}" loading="lazy" draggable="false">
+                    <div class="item-overlay">${esc(name)}</div>
+                </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // ===== Lightbox =====
+        function openLightbox(idx) {
+            lbIndex = idx;
+            updateLightbox();
+            document.getElementById('lightbox').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        function prevImage() {
+            if (currentImages.length < 2) return;
+            lbIndex = (lbIndex - 1 + currentImages.length) % currentImages.length;
+            updateLightbox();
+        }
+        function nextImage() {
+            if (currentImages.length < 2) return;
+            lbIndex = (lbIndex + 1) % currentImages.length;
+            updateLightbox();
+        }
+        function updateLightbox() {
+            const img = currentImages[lbIndex];
+            document.getElementById('lbImage').src = img.download_url;
+            document.getElementById('lbImage').alt = img.name;
+            document.getElementById('lbCounter').textContent = `${lbIndex + 1} / ${currentImages.length}`;
+        }
+
+        function esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+        function escAttr(t) { return t.replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+        // ===== Events =====
+        document.getElementById('lbClose').addEventListener('click', closeLightbox);
+        document.getElementById('lbPrev').addEventListener('click', prevImage);
+        document.getElementById('lbNext').addEventListener('click', nextImage);
+
+        document.getElementById('lightbox').addEventListener('click', function(e) {
+            if (e.target === this) closeLightbox();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (!document.getElementById('lightbox').classList.contains('active')) return;
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') prevImage();
+            if (e.key === 'ArrowRight') nextImage();
+        });
+
+        loadGallery();
+    </script>
+</body>
+</html>

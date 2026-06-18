@@ -1,6 +1,8 @@
 # 🪁 青翔未阔工作室官网
 
 > 青翔未阔工作室的官方网站 —— 集动态壁纸、一言语录、GitHub 文件下载、Minecraft 服务器状态监测、团队成员展示于一体，全静态页面，开箱即用，完美运行于 GitHub Pages。
+>
+> 可下载文件存储于 [TidalStarNan/QxwkFiles](https://github.com/TidalStarNan/QxwkFiles)，通过 GitHub API 动态读取。
 
 ## ✨ 功能一览
 
@@ -15,7 +17,7 @@
 - **响应式毛玻璃顶栏**：汉堡菜单支持移动端平滑滚动到各区块。
 
 ### 📦 下载中心 (`download.html`)
-- 通过 **GitHub API** 动态列出指定仓库目录下的文件。
+- 通过 **GitHub API** 动态列出 [QxwkFiles](https://github.com/TidalStarNan/QxwkFiles) 仓库下的文件。
 - 多标签页支持（如 `mcpack-yz`、`test`），可轻松扩展新目录。
 - 自动解析文件名中的日期（`YY.MM.DD` 格式），并按日期倒序排列。
 - 展示文件类型、大小（自动换算 KB/MB/GB）、修改日期，并提供下载链接。
