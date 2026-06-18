@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>团队成员 - 青翔未阔工作室</title>
+    <link rel="icon" type="image/webp" href="/favicon.webp">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2563eb; --primary-hover: #1d4ed8; --primary-light: #eff6ff;
+            --primary-subtle: rgba(37,99,235,0.08); --secondary: #0d9488; --accent: #7c3aed;
+            --surface: #ffffff; --bg: #f8fafc; --text-primary: #0f172a; --text-secondary: #64748b;
+            --text-tertiary: #94a3b8; --border: #e2e8f0;
+            --navbar-bg: rgba(15,23,42,0.75); --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.08); --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+            --radius-sm: 8px; --radius-md: 14px; --radius-lg: 20px;
+            --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
+            --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            --container: 1000px; --nav-height: 64px;
+        }
+        html { scroll-behavior: smooth; scroll-padding-top: var(--nav-height); }
+        body {
+            font-family: var(--font-sans); background: var(--bg); color: var(--text-primary);
+            line-height: 1.6; -webkit-font-smoothing: antialiased;
+            min-height: 100vh; display: flex; flex-direction: column;
+        }
+        /* ===== Navbar ===== */
+        .navbar {
+            position: sticky; top: 0; width: 100%; height: var(--nav-height); z-index: 100;
+            background: var(--navbar-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            transition: background var(--transition), box-shadow var(--transition);
+        }
+        .navbar.scrolled { background: rgba(15,23,42,0.88); box-shadow: 0 1px 12px rgba(0,0,0,0.15); }
+        .navbar-inner {
+            max-width: var(--container); margin: 0 auto; padding: 0 24px;
+            display: flex; align-items: center; justify-content: space-between; height: 100%;
+        }
+        .navbar-brand {
+            display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff;
+            font-weight: 600; font-size: 1.15rem; letter-spacing: 0.3px; transition: opacity var(--transition);
+        }
+        .navbar-brand:hover { opacity: 0.85; }
+        .back-link {
+            display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px;
+            background: rgba(37,99,235,0.15); color: #fff; text-decoration: none;
+            border-radius: 40px; font-size: 0.88rem; font-weight: 500;
+            backdrop-filter: blur(4px); border: 1px solid rgba(147,197,253,0.35);
+            transition: all var(--transition); white-space: nowrap;
+        }
+        .back-link:hover { background: rgba(37,99,235,0.3); border-color: rgba(147,197,253,0.6); transform: scale(1.02); }
+        /* ===== Main ===== */
+        .main { flex: 1; padding: 40px 24px 60px; }
+        .container { max-width: var(--container); margin: 0 auto; }
+        .page-header {
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+            gap: 16px; margin-bottom: 36px;
+        }
+        .page-header h1 {
+            font-size: clamp(1.5rem,3vw,2rem); font-weight: 700; color: var(--text-primary);
+        }
+        .section { margin-bottom: 40px; }
+        .section-title {
+            font-size: 1.3rem; font-weight: 600; color: var(--text-primary);
+            margin-bottom: 18px; display: flex; align-items: center; gap: 10px;
+        }
+        .section-title svg { flex-shrink: 0; }
+        .member-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;
+        }
+        .member-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);
+            padding: 20px; display: flex; align-items: center; gap: 16px;
+            transition: transform var(--transition), box-shadow var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        .member-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .member-card.full-width {
+            grid-column: 1 / -1; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 16px;
+            padding: 28px 24px;
+        }
+        .member-card .full-text { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.7; flex: 1; min-width: 200px; }
+        .member-avatar {
+            width: 56px; height: 56px; border-radius: 50%; background: var(--primary-light);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; font-weight: 600; color: var(--primary); flex-shrink: 0;
+            background-size: cover; background-position: center;
+        }
+        .member-info { flex: 1; min-width: 0; }
+        .member-name { font-size: 1.05rem; font-weight: 600; margin-bottom: 3px; word-break: break-word; }
+        .member-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4; word-break: break-word; }
+        .contact-btn {
+            display: inline-flex; align-items: center; gap: 8px; margin-top: 16px;
+            padding: 10px 24px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff;
+            border-radius: 40px; font-size: 0.92rem; font-weight: 500;
+            text-decoration: none; transition: all var(--transition); align-self: flex-start;
+        }
+        .contact-btn:hover { background: linear-gradient(135deg, var(--primary-hover), #0f766e); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+        /* ===== Footer ===== */
+        .footer {
+            background: #0f172a; text-align: center; padding: 28px 24px;
+            color: var(--text-tertiary); font-size: 0.82rem; border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .footer-copy { opacity: 0.6; }
+        /* ===== Responsive ===== */
+        @media (max-width: 640px) {
+            .page-header { flex-direction: column; align-items: flex-start; }
+            .navbar-inner { padding: 0 16px; }
+            .main { padding: 28px 16px 40px; }
+            .member-grid { grid-template-columns: 1fr; }
+            .member-card.full-width { padding: 22px 18px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="navbar-brand">
+                <img src="/favicon.webp" alt="青翔未阔工作室" width="28" height="28" style="border-radius:5px; flex-shrink:0;">
+                <span>青翔未阔工作室</span>
+            </a>
+            <a href="index.html" class="back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+                返回首页
+            </a>
+        </div>
+    </header>
+
+    <div class="main">
+        <div class="container">
+            <div class="page-header">
+                <h1>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-4px; margin-right:8px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    团队成员
+                </h1>
+            </div>
+
+            <!-- 关于工作室 -->
+            <div class="section">
+                <h2 class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    关于工作室
+                </h2>
+                <div class="member-grid">
+                    <div class="member-card full-width">
+                        <div class="full-text">这个工作室很懒，什么也没有写。</div>
+                        <a href="mailto:QxwkStudio@outlook.com?subject=咨询青翔未阔工作室" class="contact-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            联系我们
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 摸鱼成员 -->
+            <div class="section">
+                <h2 class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    摸鱼成员
+                </h2>
+                <div class="member-grid" id="coreMembers"></div>
+            </div>
+
+            <!-- 特别贡献 -->
+            <div class="section">
+                <h2 class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    特别贡献
+                </h2>
+                <div class="member-grid" id="contribMembers"></div>
+            </div>
+
+            <!-- 域名赞助 -->
+            <div class="section">
+                <h2 class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    域名赞助
+                </h2>
+                <div class="member-grid" id="sponsorMembers"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-copy">2026 青翔未阔工作室</div>
+    </footer>
+
+    <script>
+        const coreMembers = [
+            { name: '青翔未阔', desc: '工作室创始人', avatar: 'https://weavatar.com/avatar/8493cacb76284a997ac75cf43bbd8a2ab3f1ee9127250f5ead7086a741e51f00?s=400' },
+            { name: '米可-Micro', desc: '工作室联合创始人', avatar: 'https://weavatar.com/avatar/97519024b6678a197130591df9a76e6a6d80bd0d7aecd2b074dafee1dbc2512b?s=400' },
+            { name: '心态不爱打牌', desc: '工作室联合创始人', avatar: 'https://weavatar.com/avatar/473bdd519211e37b2b31bd3231b81aa50ad8f5fdbc956d6087cc956f320f98be?s=400' },
+            { name: '幻想繁星', desc: '工作室联合创始人', avatar: 'https://weavatar.com/avatar/0a258e851779fecdff48b0594af16eaaf280bbc06281bc4e35cd7e3e8a44068b?s=400' },
+            { name: '阿江_233', desc: '首席指令师 & 建筑师', avatar: 'https://weavatar.com/avatar/e660bc25449e3cd818d29339cc66c6dd2c454bee03dd8c1f861d62e578f533ff?s=400' },
+            { name: 'AmargoLeaf', desc: '建筑师&技术支持', avatar: '' }
+        ];
+        const contribMembers = [
+            { name: '青翔熙亦', desc: '不知道写什么比较好', avatar: 'https://weavatar.com/avatar/ec8877cd68a143a1e0758d3ebaee9a5e46f0a941f1b694ada2dbc59a025fa0c3?s=400' },
+            { name: '笨蛋小鞠子', desc: '建筑师 & 重工业爱好者', avatar: 'https://weavatar.com/avatar/6cdcb6920a64c3558c0e16158a15e855946c4e09504077771164b9fa1f49fa23?s=400' },
+            { name: '念帆AsheL', desc: '建筑师 & 成分复杂', avatar: 'https://weavatar.com/avatar/368f1711a5824be33c1120ab619b35d990f05387c263ad862dc91be8806c06b5?s=400' },
+            { name: '358k3', desc: '建筑师 & 萌新主播', avatar: 'https://weavatar.com/avatar/9facc2555a3d37ed0301bf920173a19427cd5fb459d4a0686e89f3e90c78f5a9?s=400' },
+            { name: '风抚落意尘', desc: '喵？', avatar: 'https://weavatar.com/avatar/52f7cdc7cf35de19c3a08e7255409a7d878db720c93be0b40badd8321cd85250?s=400' }
+        ];
+        const sponsorMembers = [
+            { name: '阿江_233', desc: '赞助 ¥40', avatar: 'https://weavatar.com/avatar/e660bc25449e3cd818d29339cc66c6dd2c454bee03dd8c1f861d62e578f533ff?s=400' },
+            { name: '风抚落意尘', desc: '赞助 ¥40', avatar: 'https://weavatar.com/avatar/52f7cdc7cf35de19c3a08e7255409a7d878db720c93be0b40badd8321cd85250?s=400' },
+            { name: '米可-Micro', desc: '赞助 ¥40', avatar: 'https://weavatar.com/avatar/97519024b6678a197130591df9a76e6a6d80bd0d7aecd2b074dafee1dbc2512b?s=400' },
+            { name: '笨蛋小鞠子', desc: '赞助 ¥40', avatar: 'https://weavatar.com/avatar/6cdcb6920a64c3558c0e16158a15e855946c4e09504077771164b9fa1f49fa23?s=400' },
+            { name: '心态不爱打牌', desc: '赞助 ¥35', avatar: 'https://weavatar.com/avatar/473bdd519211e37b2b31bd3231b81aa50ad8f5fdbc956d6087cc956f320f98be?s=400' },
+            { name: 'ZCNotFound', desc: '赞助 ¥18.88', avatar: 'https://weavatar.com/avatar/ea58b547036f75a4d21a21730bee85e21d0736aad56819d9e59d12a873fc6f21?s=400' },
+            { name: '青翔未阔', desc: '赞助 ¥16.12', avatar: 'https://weavatar.com/avatar/8493cacb76284a997ac75cf43bbd8a2ab3f1ee9127250f5ead7086a741e51f00?s=400' }
+        ];
+
+        function renderMembers(containerId, members) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            let html = '';
+            members.forEach(m => {
+                let avatarStyle = '', avatarContent = '';
+                if (m.avatar && m.avatar.trim()) {
+                    avatarStyle = `background-image: url('${m.avatar}');`;
+                } else {
+                    avatarContent = m.name.charAt(0);
+                }
+                html += `<div class="member-card">
+                    <div class="member-avatar" style="${avatarStyle}">${avatarContent}</div>
+                    <div class="member-info">
+                        <div class="member-name">${esc(m.name)}</div>
+                        <div class="member-desc">${esc(m.desc)}</div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+        function esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+        renderMembers('coreMembers', coreMembers);
+        renderMembers('contribMembers', contribMembers);
+        renderMembers('sponsorMembers', sponsorMembers);
+
+        // Navbar scroll
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => { navbar.classList.toggle('scrolled', window.scrollY > 40); }, { passive: true });
+    </script>
+</body>
+</html>

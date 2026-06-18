@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一中大辞典 - 青翔未阔工作室</title>
+    <link rel="icon" type="image/webp" href="/favicon.webp">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2563eb; --primary-hover: #1d4ed8; --primary-light: #eff6ff;
+            --primary-subtle: rgba(37,99,235,0.08); --secondary: #0d9488;
+            --surface: #ffffff; --bg: #f8fafc;
+            --text-primary: #0f172a; --text-secondary: #64748b; --text-tertiary: #94a3b8;
+            --border: #e2e8f0; --navbar-bg: rgba(15,23,42,0.75);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06); --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+            --radius-sm: 8px; --radius-md: 14px; --radius-lg: 20px;
+            --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
+            --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            --container: 1000px; --nav-height: 64px;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-sans); background: var(--bg); color: var(--text-primary);
+            line-height: 1.6; -webkit-font-smoothing: antialiased;
+            min-height: 100vh; display: flex; flex-direction: column;
+        }
+        .navbar { position: sticky; top: 0; width: 100%; height: var(--nav-height); z-index: 100;
+            background: var(--navbar-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .navbar-inner { max-width: var(--container); margin: 0 auto; padding: 0 24px;
+            display: flex; align-items: center; justify-content: space-between; height: 100%; }
+        .navbar-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff;
+            font-weight: 600; font-size: 1.15rem; letter-spacing: 0.3px; transition: opacity var(--transition); }
+        .navbar-brand:hover { opacity: 0.85; }
+        .back-link { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px;
+            background: rgba(37,99,235,0.15); color: #fff; text-decoration: none;
+            border-radius: 40px; font-size: 0.88rem; font-weight: 500;
+            backdrop-filter: blur(4px); border: 1px solid rgba(147,197,253,0.35);
+            transition: all var(--transition); white-space: nowrap; }
+        .back-link:hover { background: rgba(37,99,235,0.3); border-color: rgba(147,197,253,0.6); transform: scale(1.02); }
+        .main { flex: 1; padding: 36px 24px 60px; }
+        .container { max-width: var(--container); margin: 0 auto; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+            gap: 16px; margin-bottom: 28px; }
+        .page-header h1 { font-size: clamp(1.4rem,3vw,1.8rem); font-weight: 700; color: var(--text-primary); }
+        .tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { padding: 9px 22px; background: var(--surface); color: var(--text-secondary);
+            border: 1px solid var(--border); border-radius: 40px; font-size: 0.88rem; cursor: pointer;
+            transition: all var(--transition); font-weight: 500; }
+        .tab-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .tab-btn.active { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; border-color: var(--primary); }
+        .entries-card { background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-md); padding: 32px 28px; box-shadow: var(--shadow-sm); min-height: 200px; }
+        #entriesContainer { text-align: left; }
+        .entry-item { background: var(--bg); border-left: 4px solid var(--primary);
+            padding: 16px 20px; border-radius: var(--radius-sm); margin-bottom: 14px;
+            transition: transform var(--transition); text-align: left; }
+        .entry-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+        .entry-item.warning { border-left-color: #ef4444; background: #fef2f2; }
+        .entry-item.warning .entry-word { color: #b91c1c; }
+        .entry-item.warning .entry-def { color: #7f1d1d; }
+        .entry-word { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+        .entry-def { color: var(--text-primary); line-height: 1.7; font-size: 0.92rem; }
+        .entry-def p { text-indent: 2em; margin: 0; }
+        .no-entries { color: var(--text-tertiary); padding: 30px; text-align: center; font-size: 0.95rem; }
+        .error-msg { color: #b91c1c; margin-top: 10px; font-size: 0.84rem; }
+        .retry-btn { margin-top: 12px; padding: 8px 20px; background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff; border: none; border-radius: 40px; cursor: pointer;
+            font-size: 0.84rem; transition: opacity var(--transition); font-family: inherit; }
+        .retry-btn:hover { opacity: 0.9; }
+        /* Password prompt */
+        .password-prompt { text-align: center; padding: 30px 20px; }
+        .password-prompt h3 { color: var(--text-primary); margin-bottom: 12px; font-size: 1.1rem; font-weight: 600; }
+        .password-prompt p { color: var(--text-secondary); margin-bottom: 18px; font-size: 0.88rem; }
+        .password-prompt input { width: 100%; max-width: 320px; padding: 11px 18px;
+            border: 1.5px solid var(--border); border-radius: 40px; font-size: 0.95rem;
+            outline: none; margin-bottom: 14px; transition: border-color var(--transition); font-family: inherit; }
+        .password-prompt input:focus { border-color: var(--primary); }
+        .password-prompt button { padding: 10px 28px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff;
+            border: none; border-radius: 40px; font-size: 0.9rem; font-weight: 600;
+            cursor: pointer; transition: opacity var(--transition); font-family: inherit; }
+        .password-prompt button:hover { opacity: 0.9; }
+        .music-player { margin-bottom: 20px; display: flex; justify-content: center;
+            background: var(--bg); border-radius: var(--radius-sm); padding: 12px;
+            border: 1px solid var(--border); }
+        .music-player iframe { display: block; border-radius: 8px; }
+        .footer { background: #0f172a; text-align: center; padding: 28px 24px;
+            color: var(--text-tertiary); font-size: 0.82rem; border-top: 1px solid rgba(255,255,255,0.06); }
+        .footer-copy { opacity: 0.6; }
+        @media (max-width: 640px) {
+            .page-header { flex-direction: column; align-items: flex-start; }
+            .navbar-inner { padding: 0 16px; }
+            .main { padding: 24px 16px 40px; }
+            .entries-card { padding: 24px 18px; }
+            .tabs { gap: 8px; }
+            .tab-btn { padding: 8px 18px; font-size: 0.84rem; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="navbar-inner">
+            <a href="../index.html" class="navbar-brand">
+                <img src="/favicon.webp" alt="青翔未阔工作室" width="28" height="28" style="border-radius:5px; flex-shrink:0;">
+                <span>青翔未阔工作室</span>
+            </a>
+            <a href="../index.html" class="back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+                返回首页
+            </a>
+        </div>
+    </header>
+
+    <div class="main">
+        <div class="container">
+            <div class="page-header">
+                <h1>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-4px; margin-right:8px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M12 6v7"/><path d="M9 9h6"/></svg>
+                    一中大辞典
+                </h1>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" data-category="foreword">前言后记</button>
+                <button class="tab-btn" data-category="class_all">全校卷</button>
+                <button class="tab-btn" data-category="class_1">一班卷</button>
+                <button class="tab-btn" data-category="class_3">三班卷</button>
+                <button class="tab-btn" data-category="person">人物志</button>
+            </div>
+
+            <div class="entries-card" id="entriesCard">
+                <div id="entriesContainer" class="no-entries">加载中...</div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-copy">2026 青翔未阔工作室</div>
+    </footer>
+
+    <script>
+        const dictionaries = { class_1: [], class_3: [], class_all: [], person: [] };
+        const loadErrors = { class_1: false, class_3: false, class_all: false, person: false };
+        const unlocked = { foreword: true, class_3: false, class_1: false, class_all: true, person: false };
+        const forewordEntries = [
+            { word: '大辞典公告', definition: '词典最后更新日期：2026年6月15日\n欢迎投稿每个班的梗、人物以及好玩的东西\n什么？你说你不是本校学生？那你还是走吧……又看不懂', warning: true },
+            { word: '三班前言', definition: '本书在2026年5月11日截稿，是我们几位同学朝花夕拾的成果。回首高中三年的路程，虽有坎坷，但不妨有欢乐，于是就有了这篇"编年体史书"。因为是弟子记录老师言行的书，所以也可以叫他《论语》。本书由引言，前言，正文三部分组成。其中前言是对主要人物的介绍;正文部分严格按照编年体形式撰写，以高中三学年为节点区分，事件大致按照时间顺序排列，读者可通过词条后的解析，完成对词条的学习。正文部分的内容是我们几位同学边回忆边记录所写，其中可能有部分缺失与偏差，欢迎读者留言。关于本书制作的初衷，想了想最初是因为好玩，想把高中的快乐记下来，后来觉得这也是对狭义上青春的感受。读完这本"百科全书"后，无论你身处何地，希望能给你带来欢乐，至于后续内容的填补，那就看有心者与后来人了。\n——下水道晾衣杆' },
+            { word: '三班后记', definition: '这本书是我突发奇想想出来的一个项目，从有想法到完成编写大概三天左右。最初是为了好玩，但是编写完成后感觉像是唤醒了尘封的记忆，又回顾了一遍高中的生活，也算是一举两得了。在此感谢向我提供各种回忆与资料的朋友们，也欢迎大家对本书进行指正与投稿。\n——KKL' }
+        ];
+
+        const entriesContainer = document.getElementById('entriesContainer');
+
+        async function loadCategory(cat, file) {
+            try {
+                const r = await fetch(file);
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                const d = await r.json();
+                dictionaries[cat] = d.entries || [];
+                loadErrors[cat] = false;
+            } catch (err) {
+                dictionaries[cat] = []; loadErrors[cat] = true;
+            }
+        }
+        async function loadAll() {
+            await Promise.allSettled([
+                loadCategory('class_1', 'class_1.json'), loadCategory('class_3', 'class_3.json'),
+                loadCategory('class_all', 'class_all.json'), loadCategory('person', 'person.json')
+            ]);
+            refreshTab();
+        }
+        function getActiveCat() { const b = document.querySelector('.tab-btn.active'); return b ? b.dataset.category : 'foreword'; }
+        function refreshTab() { switchTab(getActiveCat()); }
+        async function retryCat(cat) {
+            if (cat === 'foreword') return;
+            const files = { class_1:'class_1.json', class_3:'class_3.json', class_all:'class_all.json', person:'person.json' };
+            entriesContainer.innerHTML = '<div class="no-entries">⏳ 重新加载中...</div>';
+            await loadCategory(cat, files[cat]);
+            if (getActiveCat() === cat) {
+                unlocked[cat] ? renderEntries(cat) : showPrompt(cat);
+            }
+        }
+        function getMusicHtml() {
+            return '<div class="music-player"><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=1892117638&auto=0&height=66"></iframe></div>';
+        }
+        function renderEntries(cat) {
+            let entries = cat === 'foreword' ? forewordEntries : (dictionaries[cat] || []);
+            const hasErr = cat !== 'foreword' && loadErrors[cat];
+
+            if (cat === 'class_all') {
+                let h = getMusicHtml();
+                if (hasErr) {
+                    h += `<div class="no-entries">⚠️ 该分类数据加载失败，请检查网络或稍后重试。<br><button class="retry-btn" onclick="retryCat('${cat}')">🔄 重新加载</button></div>`;
+                    entriesContainer.innerHTML = h; return;
+                }
+                if (!entries.length) { entriesContainer.innerHTML = h + '<div class="no-entries">📭 该分类暂无词条</div>'; return; }
+                entries.forEach(e => { h += renderEntry(e); });
+                entriesContainer.innerHTML = h; return;
+            }
+
+            if (hasErr) {
+                entriesContainer.innerHTML = `<div class="no-entries">⚠️ 该分类数据加载失败。<br><button class="retry-btn" onclick="retryCat('${cat}')">🔄 重新加载</button></div>`;
+                return;
+            }
+            if (!entries.length) { entriesContainer.innerHTML = '<div class="no-entries">📭 该分类暂无词条</div>'; return; }
+            entriesContainer.innerHTML = entries.map(e => renderEntry(e)).join('');
+        }
+        function renderEntry(e) {
+            const w = esc(e.word || '未知词语');
+            const def = e.definition ? e.definition.split('\n').map(l => `<p>${esc(l)}</p>`).join('') : '<p>暂无释义</p>';
+            return `<div class="entry-item${e.warning ? ' warning' : ''}"><div class="entry-word">${w}</div><div class="entry-def">${def}</div></div>`;
+        }
+        function showPrompt(cat) {
+            const names = { class_3:'三班卷', class_1:'一班卷', person:'人物志' };
+            const entries = dictionaries[cat] || [];
+            if (loadErrors[cat]) {
+                entriesContainer.innerHTML = `<div class="no-entries">⚠️ 数据加载失败。<br><button class="retry-btn" onclick="retryCat('${cat}')">🔄 重新加载</button></div>`; return;
+            }
+            if (!entries.length) {
+                entriesContainer.innerHTML = '<div class="no-entries">📭 该分类暂无词条，无法解锁。<br>请等待管理员添加内容。</div>'; return;
+            }
+            entriesContainer.innerHTML = `
+                <div class="password-prompt">
+                    <h3>🔑 解锁「${names[cat]}」</h3>
+                    <p>请输入该分类中<strong>任意一个梗的标题</strong></p>
+                    <input type="text" id="titleInput" placeholder="输入词条名称" autocomplete="off">
+                    <button id="titleBtn">验证</button>
+                    <div id="titleError" class="error-msg"></div>
+                </div>`;
+            const input = document.getElementById('titleInput');
+            const btn = document.getElementById('titleBtn');
+            const err = document.getElementById('titleError');
+            const tryUnlock = () => {
+                const v = input.value.trim();
+                if (!v) { err.textContent = '请输入一个词条标题'; return; }
+                if (entries.some(e => (e.word||'').trim().toLowerCase() === v.toLowerCase())) {
+                    unlocked[cat] = true; renderEntries(cat);
+                } else {
+                    err.textContent = '❌ 标题不正确，请再试一次'; input.value = '';
+                }
+            };
+            btn.addEventListener('click', tryUnlock);
+            input.addEventListener('keypress', e => { if (e.key === 'Enter') tryUnlock(); });
+        }
+        function switchTab(cat) {
+            (unlocked[cat] || cat === 'foreword') ? renderEntries(cat) : showPrompt(cat);
+        }
+        function esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadAll();
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    switchTab(this.dataset.category);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
