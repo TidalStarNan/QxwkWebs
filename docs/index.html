@@ -26,7 +26,7 @@
             --text-secondary: #64748b;
             --text-tertiary: #94a3b8;
             --border: #e2e8f0;
-            --navbar-bg: rgba(15, 23, 42, 0.75);
+            --navbar-bg: rgba(255, 255, 255, 0.8);
             --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
             --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
             --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
@@ -44,10 +44,11 @@
         }
         body {
             font-family: var(--font-sans);
-            background: transparent;
+            background: #f8fafc;
             color: var(--text-primary);
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
         /* ========= Navbar ========= */
@@ -61,12 +62,12 @@
             background: var(--navbar-bg);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid var(--border);
             transition: background var(--transition), box-shadow var(--transition);
         }
         .navbar.scrolled {
-            background: rgba(15, 23, 42, 0.88);
-            box-shadow: 0 1px 12px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 1px 12px rgba(0, 0, 0, 0.08);
         }
         .navbar-inner {
             max-width: var(--container);
@@ -82,7 +83,7 @@
             align-items: center;
             gap: 10px;
             text-decoration: none;
-            color: #fff;
+            color: var(--text-primary);
             font-weight: 600;
             font-size: 1.2rem;
             letter-spacing: 0.5px;
@@ -112,24 +113,24 @@
             display: block;
             height: 2.5px;
             width: 100%;
-            background: #fff;
+            background: var(--text-primary);
             border-radius: 4px;
             transition: var(--transition);
             transform-origin: center;
         }
-        .hamburger:hover span { background: #93c5fd; }
+        .hamburger:hover span { background: var(--primary); }
         .menu-panel {
             position: absolute;
             top: 52px;
             right: 0;
-            background: rgba(15, 23, 42, 0.96);
+            background: var(--surface);
             backdrop-filter: blur(16px);
             border-radius: var(--radius-md);
             padding: 8px 0;
             min-width: 190px;
             list-style: none;
             box-shadow: var(--shadow-lg);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
             opacity: 0;
             visibility: hidden;
             transform: translateY(-8px) scale(0.97);
@@ -146,17 +147,18 @@
             align-items: center;
             gap: 10px;
             padding: 11px 22px;
-            color: #e2e8f0;
+            color: var(--text-primary);
             text-decoration: none;
             font-size: 0.92rem;
             font-weight: 500;
             transition: background var(--transition), color var(--transition);
         }
         .menu-panel a:hover {
-            background: var(--primary-subtle);
-            color: #93c5fd;
+            background: var(--primary-light);
+            color: var(--primary);
         }
-        .menu-panel a svg { flex-shrink: 0; opacity: 0.7; }
+        .menu-panel a svg { flex-shrink: 0; opacity: 0.5; }
+        .menu-panel .sep { background: var(--border); }
 
         /* ========= Hero ========= */
         .hero {
@@ -325,9 +327,90 @@
             background: linear-gradient(135deg, var(--primary-light), #ccfbf1);
         }
 
+        /* ========= Photo Stack ========= */
+        .photo-stack-section {
+            background: rgba(248, 250, 252, 0.95);
+            padding: 64px 24px;
+            overflow-x: hidden;
+        }
+        .photo-stack-section .section-header {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+        .photo-stack-section .section-header h2 {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        .photo-stack-section .section-header p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        .photo-stack-wrap {
+            position: relative;
+            max-width: 520px;
+            aspect-ratio: 16 / 9;
+            margin: 0 auto;
+        }
+
+        .photo-stack-wrap .stack-card {
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+        .photo-stack-wrap .stack-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+            -webkit-user-drag: none;
+            user-select: none;
+        }
+        .stack-card.pos-0 { transform: translateX(0) scale(1) rotate(0deg); z-index: 10; opacity: 1; }
+        .stack-card.pos-1 { transform: translateX(-45%) scale(0.85) rotate(-3deg); z-index: 7; opacity: 0.6; }
+        .stack-card.pos-2 { transform: translateX(-80%) scale(0.72) rotate(-6deg); z-index: 4; opacity: 0.3; }
+        .stack-card.pos-n1 { transform: translateX(45%) scale(0.85) rotate(3deg); z-index: 7; opacity: 0.6; }
+        .stack-card.pos-n2 { transform: translateX(80%) scale(0.72) rotate(6deg); z-index: 4; opacity: 0.3; }
+        .stack-card.hidden-card { transform: scale(0.5); opacity: 0; z-index: 0; pointer-events: none; }
+
+        .photo-stack-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 16px;
+        }
+        .photo-stack-nav button {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 50%; cursor: pointer;
+            color: var(--text-secondary);
+            transition: all var(--transition);
+        }
+        .photo-stack-nav button:hover { border-color: var(--primary); color: var(--primary); }
+        .photo-stack-counter { font-size: 0.82rem; color: var(--text-tertiary); min-width: 50px; text-align: center; }
+        .photo-stack-caption { text-align: center; margin-top: 12px; font-size: 0.95rem; font-weight: 500; color: var(--text-secondary); min-height: 1.5em; }
+
+        .photo-stack-empty {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            aspect-ratio: 16 / 9; color: var(--text-tertiary); font-size: 0.9rem;
+            background: var(--surface); border-radius: var(--radius-md);
+            border: 2px dashed var(--border);
+        }
+
         /* ========= Sections ========= */
         .section {
-            background: var(--bg);
+            background: rgba(248, 250, 252, 0.95);
             padding: 64px 24px;
         }
         .section-inner {
@@ -370,7 +453,7 @@
             align-items: center;
             gap: 4px;
             border: 1px solid var(--border);
-            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
             outline: none;
         }
         .card:focus-visible {
@@ -607,6 +690,12 @@
             .menu-panel { min-width: 170px; }
             .menu-panel a { padding: 10px 18px; font-size: 0.88rem; }
         }
+        @media (max-width: 600px) {
+            .stack-card.pos-1 { transform: translateX(-35%) scale(0.82) rotate(-3deg); }
+            .stack-card.pos-2 { transform: translateX(-65%) scale(0.68) rotate(-6deg); }
+            .stack-card.pos-n1 { transform: translateX(35%) scale(0.82) rotate(3deg); }
+            .stack-card.pos-n2 { transform: translateX(65%) scale(0.68) rotate(6deg); }
+        }
         @media (max-width: 480px) {
             .section { padding: 32px 14px; }
             .grid { grid-template-columns: 1fr; gap: 14px; }
@@ -636,6 +725,10 @@
                 <img src="/favicon.webp" alt="青翔未阔工作室" width="30" height="30" style="border-radius:6px; flex-shrink:0;">
                 <span>青翔未阔工作室</span>
             </a>
+            <div style="display:flex;align-items:center;gap:24px;">
+            <button onclick="alert('骗你的，没有夜间模式')" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:none;border:none;cursor:pointer;color:var(--text-primary);border-radius:50%;transition:background var(--transition);padding:0;" aria-label="夜间模式" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='none'">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
             <div class="hamburger-wrap">
                 <button class="hamburger" id="hamburgerBtn" aria-label="菜单">
                     <span></span>
@@ -643,21 +736,43 @@
                     <span></span>
                 </button>
                 <ul class="menu-panel" id="menuPanel">
-                    <li><a href="#resources-section" class="menu-link">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                        资源中心
+                    <li><a href="download.html" class="menu-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        站内下载
                     </a></li>
-                    <li><a href="#site-nav-section" class="menu-link">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                        网站导航
-                    </a></li>
-                    <li><a href="#more-features-section" class="menu-link">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                        更多功能
+                    <li><a href="javascript:void(0)" class="menu-link" onclick="openDownloadModal();return false;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                        站外下载
                     </a></li>
                     <li><a href="gallery.html" class="menu-link">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                         画廊
+                    </a></li>
+                    <li><a href="https://github.com/TidalStarNan/QxwkWebs" target="_blank" rel="noopener noreferrer" class="menu-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                        页面仓库
+                    </a></li>
+                    <li class="sep" style="height:1px;margin:4px 16px;"></li>
+                    <li><a href="dictionary/dictionary.html" class="menu-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        一中大辞典
+                    </a></li>
+                    <li><a href="https://qiye.aliyun.com" target="_blank" rel="noopener noreferrer" class="menu-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        邮箱站
+                    </a></li>
+                    <li><a href="about.html" class="menu-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        关于我们
+                    </a></li>
+                    <li><a href="error.html" class="menu-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                        更多工具
+                    </a></li>
+                    <li class="sep" style="height:1px;margin:4px 16px;"></li>
+                    <li><a href="#links-section" class="menu-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                        网站链接
                     </a></li>
                 </ul>
             </div>
@@ -700,12 +815,36 @@
         </div>
     </div>
 
+    <!-- ===== Photo Stack ===== -->
+    <div class="photo-stack-section">
+        <div class="section-header">
+            <h2>项目概览</h2>
+            <p>左右滑动切换项目</p>
+        </div>
+        <div class="photo-stack-wrap" id="photoStack">
+            <div class="photo-stack-empty" id="stackEmpty">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;margin-bottom:8px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <div>暂无照片</div>
+            </div>
+        </div>
+        <div class="photo-stack-caption" id="stackCaption"></div>
+        <div class="photo-stack-nav" id="photoStackNav" style="display:none;">
+            <button id="stackPrev">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <span class="photo-stack-counter" id="stackCounter">1 / 1</span>
+            <button id="stackNext">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+        </div>
+    </div>
+
     <!-- ===== 资源中心 ===== -->
     <div class="section" id="resources-section">
         <div class="section-inner">
             <div class="section-header reveal">
                 <h2>资源中心</h2>
-                <p>下载客户端、查阅辞典，一站式获取工作室资源</p>
+                <p>下载资源与项目文件</p>
             </div>
             <div class="grid">
                 <a href="download.html" class="card reveal reveal-delay-1">
@@ -728,17 +867,7 @@
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </span>
                 </a>
-                <a href="dictionary/dictionary.html" class="card reveal reveal-delay-3">
-                    <div class="card-icon violet">
-                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M12 6v7"/><path d="M9 9h6"/></svg>
-                    </div>
-                    <h3>一中大辞典</h3>
-                    <p>回首高中三年的欢乐点滴</p>
-                    <span class="card-arrow">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                    </span>
-                </a>
-                <a href="gallery.html" class="card reveal reveal-delay-4">
+                <a href="gallery.html" class="card reveal reveal-delay-3">
                     <div class="card-icon emerald">
                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                     </div>
@@ -748,71 +877,50 @@
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </span>
                 </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== 网站导航 ===== -->
-    <div class="section" id="site-nav-section">
-        <div class="section-inner">
-            <div class="section-header reveal">
-                <h2>网站导航</h2>
-                <p>发现更多站点与合作伙伴</p>
-            </div>
-            <div class="grid">
-                <a href="javascript:void(0)" class="card reveal reveal-delay-1" onclick="openDomainNavModal()">
-                    <div class="card-icon emerald">
-                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <a href="https://github.com/TidalStarNan/QxwkWebs" target="_blank" rel="noopener noreferrer" class="card reveal reveal-delay-4">
+                    <div class="card-icon violet">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
                     </div>
-                    <h3>域名导航</h3>
-                    <p>导航至其他子域名站点</p>
+                    <h3>页面仓库</h3>
+                    <p>本站源代码托管于 GitHub</p>
                     <span class="card-arrow">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                    </span>
-                </a>
-                <a href="javascript:void(0)" class="card reveal reveal-delay-2" onclick="openExternalProjectsModal()">
-                    <div class="card-icon amber">
-                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                    </div>
-                    <h3>外部项目</h3>
-                    <p>发现来自合作伙伴的酷炫项目</p>
-                    <span class="card-arrow">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                    </span>
-                </a>
-                <a href="javascript:void(0)" class="card reveal reveal-delay-3" onclick="openFriendLinksModal()">
-                    <div class="card-icon rose">
-                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                    </div>
-                    <h3>友情链接</h3>
-                    <p>通往其他有趣网站的链接</p>
-                    <span class="card-arrow">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </span>
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- ===== 更多功能 ===== -->
-    <div class="section" id="more-features-section">
+
+    <!-- ===== 页面导航 ===== -->
+    <div class="section" id="page-nav-section">
         <div class="section-inner">
             <div class="section-header reveal">
-                <h2>更多功能</h2>
-                <p>探索工作室提供的更多服务</p>
+                <h2>页面导航</h2>
+                <p>快速跳转到各功能页面</p>
             </div>
             <div class="grid">
-                <a href="mc-status.html" class="card reveal reveal-delay-1">
-                    <div class="card-icon indigo">
-                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg>
+                <a href="dictionary/dictionary.html" class="card reveal reveal-delay-1">
+                    <div class="card-icon violet">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M12 6v7"/><path d="M9 9h6"/></svg>
                     </div>
-                    <h3>MC 状态监测</h3>
-                    <p>实时查看服务器状态</p>
+                    <h3>一中大辞典</h3>
+                    <p>回首高中三年的欢乐点滴</p>
                     <span class="card-arrow">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </span>
                 </a>
-                <a href="about.html" class="card reveal reveal-delay-2">
+                <a href="https://qiye.aliyun.com" target="_blank" rel="noopener noreferrer" class="card reveal reveal-delay-2">
+                    <div class="card-icon cyan">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0891b2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    </div>
+                    <h3>邮箱站</h3>
+                    <p>企业邮箱 mail.qxwkstudio.top</p>
+                    <span class="card-arrow">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0891b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </span>
+                </a>
+                <a href="about.html" class="card reveal reveal-delay-3">
                     <div class="card-icon cyan">
                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0891b2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                     </div>
@@ -822,7 +930,7 @@
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0891b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </span>
                 </a>
-                <a href="error.html" class="card reveal reveal-delay-3">
+                <a href="error.html" class="card reveal reveal-delay-4">
                     <div class="card-icon orange">
                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
                     </div>
@@ -835,6 +943,78 @@
             </div>
         </div>
     </div>
+
+
+    <!-- ===== 网站链接 ===== -->
+    <div class="section" id="links-section">
+        <div class="section-inner">
+            <div class="section-header reveal">
+                <h2>网站链接</h2>
+                <p>值得关注的站点与伙伴</p>
+            </div>
+            <div class="link-group reveal">
+                <h3 style="font-size:1rem;font-weight:600;color:var(--text-primary);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    外部项目
+                </h3>
+                <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:16px;">并不是我们工作室的项目 awa，不过来推荐一下</p>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-bottom:32px;">
+                    <a href="https://home.sails.qxwkstudio.top" target="_blank" rel="noopener noreferrer" class="link-card">
+                        <span style="font-weight:600;">Sails · 个人主页</span>
+                        <span style="font-size:0.84rem;color:var(--text-secondary);">StarsailsClover的个人主页，汇聚项目与动态</span>
+                    </a>
+                    <a href="https://fastlink.sails.qxwkstudio.top" target="_blank" rel="noopener noreferrer" class="link-card">
+                        <span style="font-weight:600;">Sails · FastLink</span>
+                        <span style="font-size:0.84rem;color:var(--text-secondary);">异闪 FastLink：新一代全能网络协议</span>
+                    </a>
+                    <a href="https://mnmcp.sails.qxwkstudio.top" target="_blank" rel="noopener noreferrer" class="link-card">
+                        <span style="font-weight:600;">Sails · MnMcP</span>
+                        <span style="font-size:0.84rem;color:var(--text-secondary);">Minecraft ↔ MiniWorld 互联</span>
+                    </a>
+                    <a href="https://blockconnect.sails.qxwkstudio.top" target="_blank" rel="noopener noreferrer" class="link-card">
+                        <span style="font-weight:600;">Sails · BlockConnect</span>
+                        <span style="font-size:0.84rem;color:var(--text-secondary);">世界联结 BlockConnect：Connect the Worlds</span>
+                    </a>
+                    <a href="https://hpbi.sails.qxwkstudio.top" target="_blank" rel="noopener noreferrer" class="link-card">
+                        <span style="font-weight:600;">Sails · HPBI</span>
+                        <span style="font-size:0.84rem;color:var(--text-secondary);">人类生产力助推计划 HPBI</span>
+                    </a>
+                    <a href="https://oxygenai.sails.qxwkstudio.top" target="_blank" rel="noopener noreferrer" class="link-card">
+                        <span style="font-weight:600;">Sails · Oxygen AI</span>
+                        <span style="font-size:0.84rem;color:var(--text-secondary);">源氧 Oxygen AI Lab：人工智能实验室</span>
+                    </a>
+                </div>
+            </div>
+            <div class="link-group reveal">
+                <h3 style="font-size:1rem;font-weight:600;color:var(--text-primary);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    友情链接
+                </h3>
+                <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:16px;">一些有趣的小伙伴和他们的网站</p>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;">
+                    <a href="https://github.com/StarsailsClover" target="_blank" rel="noopener noreferrer" class="link-card">
+                        <span style="font-weight:600;">StarsailsClover · GitHub</span>
+                        <span style="font-size:0.84rem;color:var(--text-secondary);">很多高级的项目，反正就是很厉害的一个人</span>
+                    </a>
+                    <a href="https://www.vilinko.com/" target="_blank" rel="noopener noreferrer" class="link-card">
+                        <span style="font-weight:600;">Vilinko 官方站</span>
+                        <span style="font-size:0.84rem;color:var(--text-secondary);">Vertillusion Studio 可爱系工作室</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .link-card {
+            display:flex;flex-direction:column;gap:3px;
+            padding:14px 18px;background:var(--surface);
+            border:1px solid var(--border);border-radius:var(--radius-sm);
+            text-decoration:none;color:var(--text-primary);
+            transition:transform var(--transition), box-shadow var(--transition);
+        }
+        .link-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); border-color:rgba(37,99,235,0.2); }
+    </style>
 
     <!-- ===== Footer ===== -->
     <footer class="footer">
@@ -891,66 +1071,6 @@
         </div>
     </div>
 
-    <!-- ===== Modal: 外部项目 ===== -->
-    <div class="modal-overlay" id="externalProjectsModal">
-        <div class="modal-dialog">
-            <h3>外部项目</h3>
-            <p class="modal-subtitle">合作伙伴与子项目精选</p>
-            <div class="modal-options">
-                <a href="https://home.sails.qxwkstudio.top" target="_blank" rel="noopener noreferrer" class="modal-option">
-                    <div class="modal-option-name">Sails · 个人主页</div>
-                    <div class="modal-option-info">StarsailsClover的个人主页，汇聚项目与动态</div>
-                </a>
-                <a href="https://fastlink.sails.qxwkstudio.top" target="_blank" rel="noopener noreferrer" class="modal-option">
-                    <div class="modal-option-name">Sails · FastLink</div>
-                    <div class="modal-option-info">异闪 FastLink：新一代全能网络协议</div>
-                </a>
-                <a href="https://mnmcp.sails.qxwkstudio.top" target="_blank" rel="noopener noreferrer" class="modal-option">
-                    <div class="modal-option-name">Sails · MnMcP</div>
-                    <div class="modal-option-info">Minecraft ↔ MiniWorld 互联</div>
-                </a>
-                <a href="https://blockconnect.sails.qxwkstudio.top" target="_blank" rel="noopener noreferrer" class="modal-option">
-                    <div class="modal-option-name">Sails · BlockConnect</div>
-                    <div class="modal-option-info">世界联结 BlockConnect：Connect the Worlds, Enjoy with Players.</div>
-                </a>
-                <a href="https://hpbi.sails.qxwkstudio.top" target="_blank" rel="noopener noreferrer" class="modal-option">
-                    <div class="modal-option-name">Sails · HPBI</div>
-                    <div class="modal-option-info">人类生产力助推计划 HPBI：人工智能赋能生产力提升工具</div>
-                </a>
-                <a href="https://oxygenai.sails.qxwkstudio.top" target="_blank" rel="noopener noreferrer" class="modal-option">
-                    <div class="modal-option-name">Sails · Oxygen AI</div>
-                    <div class="modal-option-info">源氧 Oxygen AI Lab：人工智能实验室</div>
-                </a>
-            </div>
-            <p class="modal-footer-note">更多外部项目持续更新中……</p>
-            <button class="modal-close" onclick="closeExternalProjectsModal()">关闭</button>
-        </div>
-    </div>
-
-    <!-- ===== Modal: 友情链接 ===== -->
-    <div class="modal-overlay" id="friendLinksModal">
-        <div class="modal-dialog">
-            <h3>友情链接</h3>
-            <p class="modal-subtitle">通往其他有趣网站和个人主页的链接</p>
-            <div class="modal-options">
-                <a href="https://github.com/StarsailsClover" target="_blank" rel="noopener noreferrer" class="modal-option">
-                    <div class="modal-option-name">
-                        StarsailsClover · GitHub
-                        <span class="modal-option-password">github.com/StarsailsClover</span>
-                    </div>
-                    <div class="modal-option-info">很多高级的项目，反正就是很厉害的一个人</div>
-                </a>
-                <a href="https://www.vilinko.com/" target="_blank" rel="noopener noreferrer" class="modal-option">
-                    <div class="modal-option-name">
-                        Vilinko 官方站
-                        <span class="modal-option-password">vilinko.com</span>
-                    </div>
-                    <div class="modal-option-info">Vertillusion Studio 可爱系工作室，开发了很多可爱的项目</div>
-                </a>
-            </div>
-            <button class="modal-close" onclick="closeFriendLinksModal()">关闭</button>
-        </div>
-    </div>
 
     <script>
         // ===== 一言 =====
@@ -1031,11 +1151,6 @@
         function closeDownloadModal() { closeModal('downloadModal'); }
         function openDomainNavModal() { openModal('domainNavModal'); }
         function closeDomainNavModal() { closeModal('domainNavModal'); }
-        function openExternalProjectsModal() { openModal('externalProjectsModal'); }
-        function closeExternalProjectsModal() { closeModal('externalProjectsModal'); }
-        function openFriendLinksModal() { openModal('friendLinksModal'); }
-        function closeFriendLinksModal() { closeModal('friendLinksModal'); }
-
         // ===== Click overlay to close =====
         document.querySelectorAll('.modal-overlay').forEach(el => {
             el.addEventListener('click', function(e) {
@@ -1074,15 +1189,106 @@
             window.addEventListener('scroll', () => { if (menuPanel.classList.contains('active')) closeMenu(); });
             document.querySelectorAll('.menu-link').forEach(link => {
                 link.addEventListener('click', function(e) {
-                    const targetId = this.getAttribute('href');
-                    if (targetId && targetId !== '#') {
+                    closeMenu();
+                    const href = this.getAttribute('href');
+                    if (href && href.startsWith('#') && href !== '#') {
                         e.preventDefault();
-                        const target = document.querySelector(targetId);
-                        if (target) { target.scrollIntoView({ behavior: 'smooth' }); closeMenu(); }
+                        const target = document.querySelector(href);
+                        if (target) target.scrollIntoView({ behavior: 'smooth' });
                     }
                 });
             });
         }
+
+        // ===== Photo Stack =====
+        (function() {
+            const STACK_CONFIG = { owner: 'TidalStarNan', repo: 'QxwkWebs', branch: 'main' };
+            const IMG_EXTS = ['png','jpg','jpeg','gif','webp','svg'];
+            let images = [];
+            let currentIdx = 0;
+            let cards = [];
+
+            const stack = document.getElementById('photoStack');
+            const nav = document.getElementById('photoStackNav');
+            const counter = document.getElementById('stackCounter');
+            const caption = document.getElementById('stackCaption');
+
+            async function loadPhotos() {
+                try {
+                    const r = await fetch(`https://api.github.com/repos/${STACK_CONFIG.owner}/${STACK_CONFIG.repo}/contents/resources?ref=${STACK_CONFIG.branch}`);
+                    if (!r.ok) throw new Error('fetch failed');
+                    const data = await r.json();
+                    images = data.filter(f => f.type === 'file' && IMG_EXTS.includes(f.name.split('.').pop().toLowerCase()));
+                    if (images.length === 0) { showEmpty(); return; }
+                    nav.style.display = 'flex';
+                    createCards();
+                    updatePositions();
+                } catch (e) {
+                    stack.innerHTML = '<div class="photo-stack-empty">照片加载失败</div>';
+                }
+            }
+
+            function showEmpty() {
+                stack.innerHTML = '<div class="photo-stack-empty"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;margin-bottom:8px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><div>暂无照片</div></div>';
+            }
+
+            function createCards() {
+                stack.innerHTML = '';
+                cards = [];
+                images.forEach((img, i) => {
+                    const div = document.createElement('div');
+                    div.className = 'stack-card';
+                    div.dataset.idx = i;
+                    const im = document.createElement('img');
+                    im.src = img.download_url;
+                    im.alt = img.name.replace(/\.[^.]+$/, '');
+                    im.loading = 'lazy';
+                    im.draggable = false;
+                    im.oncontextmenu = function() { return false; };
+                    div.appendChild(im);
+                    stack.appendChild(div);
+                    cards.push(div);
+                });
+            }
+
+            function updatePositions() {
+                const total = images.length;
+                cards.forEach((card, i) => {
+                    card.className = 'stack-card ' + getPos(i, currentIdx, total);
+                });
+                counter.textContent = `${currentIdx + 1} / ${total}`;
+                caption.textContent = images[currentIdx].name.replace(/\.[^.]+$/, '');
+            }
+
+            function getPos(i, cur, total) {
+                if (i === cur) return 'pos-0';
+                if (i === (cur - 1 + total) % total) return 'pos-1';
+                if (i === (cur - 2 + total) % total) return 'pos-2';
+                if (i === (cur + 1) % total) return 'pos-n1';
+                if (i === (cur + 2) % total) return 'pos-n2';
+                return 'hidden-card';
+            }
+
+            function goPrev() { currentIdx = (currentIdx - 1 + images.length) % images.length; updatePositions(); }
+            function goNext() { currentIdx = (currentIdx + 1) % images.length; updatePositions(); }
+
+            document.getElementById('stackPrev').addEventListener('click', goPrev);
+            document.getElementById('stackNext').addEventListener('click', goNext);
+
+            // Touch swipe
+            var touchStartX = 0;
+            stack.addEventListener('touchstart', function(e) {
+                touchStartX = e.touches[0].clientX;
+            }, { passive: true });
+            stack.addEventListener('touchend', function(e) {
+                var diff = touchStartX - e.changedTouches[0].clientX;
+                if (Math.abs(diff) > 40) {
+                    if (diff > 0) goNext(); else goPrev();
+                }
+            }, { passive: true });
+
+            loadPhotos();
+        })();
     </script>
 </body>
 </html>
