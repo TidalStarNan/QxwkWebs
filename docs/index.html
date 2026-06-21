@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>青翔未阔工作室</title>
-    <meta name="description" content="青翔未阔工作室官方门户，提供资源下载、网站导航、外部项目推荐、友情链接、MC 服务器状态监测等一站式服务，并展示每日精选壁纸与一言语录。">
+    <meta name="description" content="青翔未阔工作室官方门户，提供资源下载、画廊、项目展示、团队介绍等一站式服务，并展示每日精选壁纸与一言语录。">
     <link rel="icon" type="image/webp" href="/favicon.webp">
     <style>
         /* ========= Reset & Base ========= */
@@ -1045,33 +1045,6 @@
         </div>
     </div>
 
-    <!-- ===== Modal: 域名导航 ===== -->
-    <div class="modal-overlay" id="domainNavModal">
-        <div class="modal-dialog">
-            <h3>域名导航</h3>
-            <p class="modal-subtitle">官方主站与核心域名</p>
-            <div class="modal-options">
-                <a href="https://home.qxwkstudio.top" target="_blank" rel="noopener noreferrer" class="modal-option">
-                    <div class="modal-option-name">
-                        青翔未阔 · 主站
-                        <span class="modal-option-password">home.qxwkstudio.top</span>
-                    </div>
-                    <div class="modal-option-info">全新官网域名，聚合工作室动态</div>
-                </a>
-                <a href="https://qiye.aliyun.com" target="_blank" rel="noopener noreferrer" class="modal-option">
-                    <div class="modal-option-name">
-                        青翔未阔 · 邮箱站
-                        <span class="modal-option-password">mail.qxwkstudio.top</span>
-                    </div>
-                    <div class="modal-option-info">企业邮箱服务，跳转至阿里云企业邮箱管理平台</div>
-                </a>
-            </div>
-            <p class="modal-footer-note">更多子域名陆续上线中……</p>
-            <button class="modal-close" onclick="closeDomainNavModal()">关闭</button>
-        </div>
-    </div>
-
-
     <script>
         // ===== 一言 =====
         async function fetchSaying() {
@@ -1149,8 +1122,6 @@
 
         function openDownloadModal() { openModal('downloadModal'); }
         function closeDownloadModal() { closeModal('downloadModal'); }
-        function openDomainNavModal() { openModal('domainNavModal'); }
-        function closeDomainNavModal() { closeModal('domainNavModal'); }
         // ===== Click overlay to close =====
         document.querySelectorAll('.modal-overlay').forEach(el => {
             el.addEventListener('click', function(e) {
