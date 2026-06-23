@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>26键拼音输入法易错点测试 - 青翔未阔工作室</title>
+    <link rel="icon" type="image/webp" href="../favicon.webp">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2563eb; --primary-hover: #1d4ed8; --primary-light: #eff6ff;
+            --primary-subtle: rgba(37,99,235,0.08); --secondary: #0d9488;
+            --surface: #ffffff; --bg: #f8fafc;
+            --text-primary: #0f172a; --text-secondary: #64748b; --text-tertiary: #94a3b8;
+            --border: #e2e8f0; --navbar-bg: rgba(255, 255, 255, 0.8);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06); --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+            --radius-sm: 8px; --radius-md: 14px;
+            --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
+            --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            --container: 1100px; --nav-height: 64px;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-sans); background: var(--bg); color: var(--text-primary);
+            line-height: 1.6; -webkit-font-smoothing: antialiased;
+            min-height: 100vh; display: flex; flex-direction: column;
+        }
+        .navbar { position: sticky; top: 0; width: 100%; height: var(--nav-height); z-index: 100;
+            background: var(--navbar-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border); }
+        .navbar-inner { max-width: var(--container); margin: 0 auto; padding: 0 24px;
+            display: flex; align-items: center; justify-content: space-between; height: 100%; }
+        .navbar-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-primary);
+            font-weight: 600; font-size: 1.15rem; letter-spacing: 0.3px; transition: opacity var(--transition); }
+        .navbar-brand:hover { opacity: 0.85; }
+        .back-link { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px;
+            background: rgba(37,99,235,0.15); color: var(--text-primary); text-decoration: none;
+            border-radius: 40px; font-size: 0.88rem; font-weight: 500;
+            backdrop-filter: blur(4px); border: 1px solid rgba(147,197,253,0.35);
+            transition: all var(--transition); white-space: nowrap; }
+        .back-link:hover { background: rgba(37,99,235,0.3); border-color: rgba(147,197,253,0.6); transform: scale(1.02); }
+        .main { flex: 1; padding: 36px 24px 60px; }
+        .container { max-width: var(--container); margin: 0 auto; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+            gap: 16px; margin-bottom: 32px; }
+        .page-header h1 { font-size: clamp(1.4rem,3vw,1.8rem); font-weight: 700; color: var(--text-primary); }
+        .quiz-info { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);
+            padding: 20px 24px; margin-bottom: 24px; display: flex; justify-content: space-between;
+            align-items: center; flex-wrap: wrap; gap: 12px; }
+        .quiz-stats { display: flex; gap: 20px; font-size: 0.9rem; }
+        .stat-item { display: flex; align-items: center; gap: 6px; color: var(--text-secondary); }
+        .stat-item svg { width: 16px; height: 16px; }
+        .quiz-container { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm); overflow: hidden; }
+        .quiz-header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; padding: 20px 24px;
+            display: flex; justify-content: space-between; align-items: center; }
+        .quiz-title { font-size: 1.1rem; font-weight: 600; }
+        .quiz-progress { font-size: 0.9rem; opacity: 0.9; }
+        .question-section { padding: 28px 24px; }
+        .question-number { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; }
+        .question-text { font-size: 1.1rem; font-weight: 600; margin-bottom: 24px; line-height: 1.6; }
+        .options-grid { display: grid; gap: 12px; }
+        .option-item { background: var(--bg); border: 2px solid var(--border); border-radius: var(--radius-sm);
+            padding: 16px 20px; transition: all var(--transition);
+            display: flex; align-items: flex-start; gap: 12px; }
+        .option-item:not(.answered):not(.correct):not(.incorrect):not(.selected):hover { border-color: var(--primary); background: var(--primary-light); cursor: pointer; }
+        .option-item.selected:not(.answered):hover { border-color: var(--primary); background: var(--primary-subtle); cursor: pointer; }
+        .option-item.selected { border-color: var(--primary); background: var(--primary-subtle); }
+        .option-item.answered { cursor: default; opacity: 0.8; }
+        .option-item.correct {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        .option-item.incorrect {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+        .option-item.correct .option-letter {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+        .option-item.incorrect .option-letter {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+        .option-letter { width: 28px; height: 28px; border-radius: 50%; background: var(--surface);
+            border: 2px solid var(--border); display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 0.9rem; flex-shrink: 0; }
+        .option-item.selected .option-letter {
+            border-color: var(--primary); color: var(--primary);
+        }
+        .option-content { flex: 1; }
+        .option-text { color: var(--text-primary); font-size: 0.95rem; line-height: 1.5; }
+        .quiz-controls { padding: 24px; background: var(--bg); border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .quiz-navigation { display: flex; gap: 12px; }
+        .quiz-actions { display: flex; gap: 12px; }
+        .quiz-controls .back-to-result {
+            background: var(--surface);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        .quiz-controls .back-to-result:hover {
+            background: var(--bg);
+            color: var(--text-primary);
+        }
+        .btn { padding: 10px 24px; border: none; border-radius: 40px;
+            font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all var(--transition);
+            display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; }
+        .btn-primary:hover { background: linear-gradient(135deg, var(--primary-hover), #0f766e); transform: translateY(-1px); }
+        .btn-secondary { background: var(--surface); color: var(--text-primary); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--bg); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .quiz-result { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);
+            padding: 40px 32px; text-align: center; }
+        .result-icon { width: 64px; height: 64px; margin: 0 auto 20px; }
+        .result-icon svg { width: 100%; height: 100%; }
+        .result-score { font-size: 3rem; font-weight: 700; margin-bottom: 8px; }
+        .result-message { font-size: 1.2rem; margin-bottom: 24px; }
+        .result-details { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+        .detail-item { background: var(--bg); padding: 16px; border-radius: var(--radius-sm); }
+        .detail-value { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
+        .detail-label { font-size: 0.85rem; color: var(--text-secondary); }
+        .footer { background: #0f172a; text-align: center; padding: 28px 24px;
+            color: var(--text-tertiary); font-size: 0.82rem; border-top: 1px solid rgba(255,255,255,0.06); }
+        .footer-copy { opacity: 0.6; }
+        .loading { text-align: center; padding: 40px; color: var(--text-secondary); }
+        .spinner { display: inline-block; width: 40px; height: 40px; border: 3px solid var(--border);
+            border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 640px) {
+            .page-header { flex-direction: column; align-items: flex-start; }
+            .navbar-inner { padding: 0 16px; }
+            .main { padding: 24px 16px 40px; }
+            .quiz-stats { flex-direction: column; gap: 8px; width: 100%; }
+            .quiz-info { flex-direction: column; text-align: center; }
+            .result-details { grid-template-columns: 1fr; }
+            .quiz-controls { flex-direction: column; align-items: stretch; }
+            .quiz-navigation { justify-content: space-between; }
+            .quiz-actions { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="navbar-inner">
+            <a href="../index.html" class="navbar-brand">
+                <img src="../favicon.webp" alt="青翔未阔工作室" width="28" height="28" style="border-radius:5px; flex-shrink:0;">
+                <span>青翔未阔工作室</span>
+            </a>
+            <a href="../index.html" class="back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+                返回首页
+            </a>
+        </div>
+    </header>
+
+    <div class="main">
+        <div class="container">
+            <div class="page-header">
+                <h1>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-4px; margin-right:8px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    26键拼音输入法易错点测试
+                </h1>
+            </div>
+
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 16px;">正在随机选择20道题目...</p>
+            </div>
+
+            <div id="quizContent" style="display: none;">
+                <div class="quiz-info">
+                    <div>
+                        <h2 id="quizTitle" style="font-size:1.2rem; margin-bottom:4px;">26键拼音输入法易错点测试</h2>
+                        <p id="quizDescription" style="color:var(--text-secondary); font-size:0.9rem;">从40道题目中随机选择20道，每题 5 分</p>
+                    </div>
+                    <div class="quiz-stats">
+                        <div class="stat-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
+                            <span>时间：<span id="timeDisplay">00:00</span></span>
+                        </div>
+                        <div class="stat-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg>
+                            <span>进度：<span id="progressDisplay">0/5</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="quizContainer" class="quiz-container">
+                    <div class="quiz-header">
+                        <div class="quiz-title">题目 <span id="currentQuestionNum">1</span> / <span id="totalQuestions">5</span></div>
+                        <div class="quiz-progress">已完成：<span id="completedCount">0</span> 题</div>
+                    </div>
+
+                    <div class="question-section">
+                        <div class="question-number">第 <span id="questionNum">1</span> 题</div>
+                        <div class="question-text" id="questionText">JavaScript 中，以下哪个关键字用于声明常量？</div>
+
+                        <div class="options-grid" id="optionsContainer">
+                            <!-- Options will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="quiz-controls">
+                        <div class="quiz-navigation">
+                            <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                                上一题
+                            </button>
+                            <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">
+                                下一题
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                            </button>
+                        </div>
+                        <div class="quiz-actions" id="quizActions" style="display: none;">
+                            <button class="btn btn-secondary back-to-result" id="backToResultBtn" onclick="returnToResult()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                                返回结果页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="resultContainer" class="quiz-result" style="display: none;">
+                    <div class="result-icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                    <div class="result-score" id="finalScore">80/100分</div>
+                    <div class="result-message" id="resultMessage">恭喜完成测试！</div>
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <div class="detail-value" id="correctCount">4</div>
+                            <div class="detail-label">答对</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-value" id="wrongCount">1</div>
+                            <div class="detail-label">答错</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-value" id="timeSpent">02:35</div>
+                            <div class="detail-label">用时</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="returnToReview()">查看答题情况</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-copy">2026 青翔未阔工作室</div>
+    </footer>
+
+    <script>
+        let quizData = null;
+        let currentQuestion = 0;
+        let userAnswers = new Array().fill(-1);
+        let startTime = Date.now();
+        let timerInterval;
+        let answered = false;
+        let reviewMode = false;
+
+        // Load questions from JSON
+        async function loadQuestions() {
+            try {
+                const response = await fetch('./questions.json');
+                if (!response.ok) throw new Error('Failed to load questions');
+                const data = await response.json();
+
+                // Randomly select 20 questions from the 40 available
+                const shuffled = data.questions.sort(() => 0.5 - Math.random());
+                const selectedQuestions = shuffled.slice(0, 20);
+
+                // Preserve original titles and descriptions
+                quizData = {
+                    title: data.title,
+                    description: data.description,
+                    questions: selectedQuestions
+                };
+
+                userAnswers = new Array(quizData.questions.length).fill(-1);
+                initializeQuiz();
+            } catch (error) {
+                document.getElementById('loading').innerHTML = `
+                    <p style="color: #ef4444;">加载题目失败，请刷新页面重试</p>
+                `;
+            }
+        }
+
+        function initializeQuiz() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('quizContent').style.display = 'block';
+
+            // Set quiz info
+            document.getElementById('quizTitle').textContent = quizData.title;
+            document.getElementById('quizDescription').textContent = quizData.description;
+            document.getElementById('totalQuestions').textContent = quizData.questions.length;
+
+            updateProgress();
+            startTimer();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById('timeDisplay').textContent =
+                    `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function updateProgress() {
+            // Check if in review mode
+            if (reviewMode) {
+                updateReviewProgress();
+                return;
+            }
+
+            document.getElementById('currentQuestionNum').textContent = currentQuestion + 1;
+            document.getElementById('questionNum').textContent = currentQuestion + 1;
+            document.getElementById('progressDisplay').textContent = `${currentQuestion + 1}/${quizData.questions.length}`;
+            document.getElementById('completedCount').textContent = currentQuestion;
+
+            // Update question content
+            document.getElementById('questionText').textContent = quizData.questions[currentQuestion].question;
+
+            // Update options
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+
+            quizData.questions[currentQuestion].options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option-item';
+                optionDiv.dataset.option = String.fromCharCode(65 + index);
+                if (userAnswers[currentQuestion] === index) {
+                    optionDiv.classList.add('selected');
+                }
+
+                optionDiv.innerHTML = `
+                    <div class="option-letter">${String.fromCharCode(65 + index)}</div>
+                    <div class="option-content">
+                        <div class="option-text">${option}</div>
+                    </div>
+                `;
+
+                // Allow clicking options in quiz mode
+                if (!reviewMode && !answered) {
+                    optionDiv.addEventListener('click', () => selectOption(index));
+                }
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            // Show selected option status
+            if (userAnswers[currentQuestion] !== -1) {
+                const allOptions = document.querySelectorAll('.option-item');
+                const selectedIndex = userAnswers[currentQuestion];
+
+                allOptions.forEach((option, index) => {
+                    if (answered) {
+                        option.classList.add('answered');
+                    }
+                    if (index === selectedIndex) {
+                        option.classList.add('selected');
+                    }
+                });
+            }
+
+            // Update button states
+            const isLastQuestion = currentQuestion === quizData.questions.length - 1;
+            const isAnswered = userAnswers[currentQuestion] !== -1;
+
+            document.getElementById('prevBtn').disabled = currentQuestion === 0;
+            document.getElementById('nextBtn').disabled = !isAnswered;
+
+            // Hide back to result button in quiz mode
+            document.getElementById('quizActions').style.display = 'none';
+
+            if (isLastQuestion && isAnswered) {
+                document.getElementById('nextBtn').innerHTML = '提交答案';
+                document.getElementById('nextBtn').onclick = submitQuiz;
+            } else {
+                document.getElementById('nextBtn').innerHTML = '下一题<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+                document.getElementById('nextBtn').onclick = nextQuestion;
+            }
+        }
+
+        function selectOption(index) {
+            if (answered) return;
+
+            userAnswers[currentQuestion] = index;
+            updateProgress();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < quizData.questions.length - 1) {
+                currentQuestion++;
+                updateProgress();
+            } else if (userAnswers[currentQuestion] !== -1) {
+                submitQuiz();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                if (reviewMode) {
+                    updateReviewProgress();
+                } else {
+                    updateProgress();
+                }
+            }
+        }
+
+        function submitQuiz() {
+            answered = true;
+            clearInterval(timerInterval);
+
+            // Calculate score
+            let correctCount = 0;
+            userAnswers.forEach((answer, index) => {
+                if (answer === quizData.questions[index].correct) {
+                    correctCount++;
+                }
+            });
+
+            const score = Math.round((correctCount / quizData.questions.length) * 100);
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            const timeString = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            // Show result
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultContainer').style.display = 'block';
+            document.getElementById('finalScore').textContent = `${score}/100分`;
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('wrongCount').textContent = quizData.questions.length - correctCount;
+            document.getElementById('timeSpent').textContent = timeString;
+
+            // Update message based on score
+            const messageEl = document.getElementById('resultMessage');
+            if (score >= 80) {
+                messageEl.textContent = '优秀！继续保持！';
+            } else if (score >= 60) {
+                messageEl.textContent = '及格了，还有进步空间！';
+            } else {
+                messageEl.textContent = '需要继续努力哦！';
+            }
+        }
+
+        function updateReviewProgress() {
+            // Update question content
+            document.getElementById('questionText').textContent = `第 ${currentQuestion + 1} 题：${quizData.questions[currentQuestion].question}`;
+
+            // Update options
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+
+            quizData.questions[currentQuestion].options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option-item';
+                optionDiv.dataset.option = String.fromCharCode(65 + index);
+
+                optionDiv.innerHTML = `
+                    <div class="option-letter">${String.fromCharCode(65 + index)}</div>
+                    <div class="option-content">
+                        <div class="option-text">${option}</div>
+                    </div>
+                `;
+
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            // Show answer status
+            const userAnswer = userAnswers[currentQuestion];
+            const correctAnswer = quizData.questions[currentQuestion].correct;
+            const allOptions = document.querySelectorAll('.option-item');
+
+            allOptions.forEach((option, index) => {
+                if (index === correctAnswer) {
+                    option.classList.add('correct');
+                }
+                if (index === userAnswer) {
+                    option.classList.add('selected');
+                    if (userAnswer !== correctAnswer) {
+                        option.classList.add('incorrect');
+                    }
+                }
+            });
+
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentQuestion === 0;
+            document.getElementById('nextBtn').disabled = currentQuestion === quizData.questions.length - 1;
+
+            // Update navigation
+            document.getElementById('currentQuestionNum').textContent = currentQuestion + 1;
+            document.getElementById('questionNum').textContent = currentQuestion + 1;
+            document.getElementById('progressDisplay').textContent = `查看中：${currentQuestion + 1}/${quizData.questions.length}`;
+
+            // Update user answer status
+            const statusEl = document.getElementById('userAnswerStatus');
+            if (statusEl) {
+                if (userAnswer === -1) {
+                    statusEl.textContent = '未作答';
+                    statusEl.style.color = '#ef4444';
+                } else if (userAnswer === correctAnswer) {
+                    statusEl.textContent = '✓ 正确';
+                    statusEl.style.color = '#10b981';
+                } else {
+                    statusEl.textContent = '✗ 错误';
+                    statusEl.style.color = '#ef4444';
+                }
+            }
+
+            // Show back to result button in review mode
+            document.getElementById('quizActions').style.display = 'flex';
+        }
+
+        function nextQuestionInReview() {
+            if (currentQuestion < quizData.questions.length - 1) {
+                currentQuestion++;
+                updateReviewProgress();
+            }
+        }
+
+        function returnToReview() {
+            // Enter review mode from result page
+            reviewMode = true;
+            currentQuestion = 0;
+
+            // Update UI for review mode
+            document.getElementById('resultContainer').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+
+            // Update quiz header
+            document.querySelector('.quiz-title').innerHTML = '答题回顾 <span style="font-size: 0.9rem; opacity: 0.8;">- 第 <span id="currentQuestionNum">1</span> / <span id="totalQuestions">' + quizData.questions.length + '</span> 题</span>';
+            document.getElementById('completedCount').innerHTML = '你的答案：<span id="userAnswerStatus"></span>';
+
+            // Update button text and behavior
+            document.getElementById('nextBtn').innerHTML = '下一题<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+            document.getElementById('nextBtn').onclick = nextQuestionInReview;
+
+            // Show back to result button
+            document.getElementById('quizActions').style.display = 'flex';
+
+            // Update progress display
+            document.getElementById('progressDisplay').textContent = `1/${quizData.questions.length}`;
+            document.getElementById('completedCount').textContent = '';
+
+            // Load first question in review mode
+            updateReviewProgress();
+        }
+
+        function returnToResult() {
+            // Return to result page
+            reviewMode = false;
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultContainer').style.display = 'block';
+
+            // Hide back to result button
+            document.getElementById('quizActions').style.display = 'none';
+        }
+
+        // Initialize quiz on page load
+        window.addEventListener('DOMContentLoaded', loadQuestions);
+    </script>
+</body>
+</html>

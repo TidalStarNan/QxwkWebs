@@ -1,5 +1,6 @@
 User-agent: *
 Disallow: /error.html
 Disallow: /dictionary/*.json
+Disallow: /tools/questions.json
 
 Sitemap: https://home.qxwkstudio.top/sitemap.xml

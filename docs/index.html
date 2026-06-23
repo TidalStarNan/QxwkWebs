@@ -17,9 +17,7 @@
             --primary: #2563eb;
             --primary-hover: #1d4ed8;
             --primary-light: #eff6ff;
-            --primary-subtle: rgba(37, 99, 235, 0.08);
             --secondary: #0d9488;
-            --accent: #7c3aed;
             --surface: #ffffff;
             --bg: #f8fafc;
             --text-primary: #0f172a;
@@ -158,7 +156,7 @@
             color: var(--primary);
         }
         .menu-panel a svg { flex-shrink: 0; opacity: 0.5; }
-        .menu-panel .sep { background: var(--border); }
+        .menu-panel .sep { background: var(--border); height: 1px; margin: 4px 16px; list-style: none; }
 
         /* ========= Hero ========= */
         .hero {
@@ -642,13 +640,6 @@
             background: var(--border);
             color: var(--text-primary);
         }
-        .modal-footer-note {
-            font-size: 0.78rem;
-            color: var(--text-tertiary);
-            margin-top: 16px;
-            text-align: center;
-        }
-
         /* ========= Scroll Animations ========= */
         .reveal {
             opacity: 0;
@@ -740,19 +731,15 @@
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                         站内下载
                     </a></li>
-                    <li><a href="javascript:void(0)" class="menu-link" onclick="openDownloadModal();return false;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-                        站外下载
-                    </a></li>
                     <li><a href="gallery.html" class="menu-link">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                         画廊
                     </a></li>
-                    <li><a href="https://github.com/TidalStarNan/QxwkWebs" target="_blank" rel="noopener noreferrer" class="menu-link">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-                        页面仓库
+                    <li><a href="tools/mc-status.html" class="menu-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg>
+                        MC 服务器状态
                     </a></li>
-                    <li class="sep" style="height:1px;margin:4px 16px;"></li>
+                    <li class="sep"></li>
                     <li><a href="dictionary/dictionary.html" class="menu-link">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
                         一中大辞典
@@ -765,11 +752,7 @@
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                         关于我们
                     </a></li>
-                    <li><a href="error.html" class="menu-link">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-                        更多工具
-                    </a></li>
-                    <li class="sep" style="height:1px;margin:4px 16px;"></li>
+                    <li class="sep"></li>
                     <li><a href="#links-section" class="menu-link">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                         网站链接
@@ -781,7 +764,7 @@
 
     <!-- ===== Hero ===== -->
     <div class="hero">
-        <img class="hero-bg" src="https://uapis.cn/api/v1/image/bing-daily?resolution=1080" alt="每日壁纸" id="bgImage">
+        <img class="hero-bg" src="https://bing.biturl.top/?resolution=1920&format=image&index=0" alt="每日壁纸" id="bgImage">
         <div class="hero-overlay">
             <h1>欢迎访问</h1>
             <p class="hero-subtitle">青翔未阔工作室官网</p>
@@ -804,7 +787,7 @@
     </div>
 
     <!-- ===== Announcement ===== -->
-    <div class="announcement">
+    <div class="announcement" id="announcement">
         <div class="announcement-inner">
             <div class="announcement-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -844,7 +827,7 @@
         <div class="section-inner">
             <div class="section-header reveal">
                 <h2>资源中心</h2>
-                <p>下载资源与项目文件</p>
+                <p>下载资源与在线工具</p>
             </div>
             <div class="grid">
                 <a href="download.html" class="card reveal reveal-delay-1">
@@ -885,6 +868,26 @@
                     <p>本站源代码托管于 GitHub</p>
                     <span class="card-arrow">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </span>
+                </a>
+                <a href="tools/mc-status.html" class="card reveal">
+                    <div class="card-icon indigo">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg>
+                    </div>
+                    <h3>MC 服务器状态</h3>
+                    <p>查询 Minecraft 服务器在线状态</p>
+                    <span class="card-arrow">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </span>
+                </a>
+                <a href="tools/questions.html" class="card reveal">
+                    <div class="card-icon amber">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/></svg>
+                    </div>
+                    <h3>易错点测试</h3>
+                    <p>26键拼音输入法易错点测试</p>
+                    <span class="card-arrow">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </span>
                 </a>
             </div>
@@ -1071,9 +1074,21 @@
         fetchSaying();
 
         // ===== Hero background fallback =====
-        document.getElementById('bgImage')?.addEventListener('error', function() {
-            this.src = 'data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 width%3D%221920%22 height%3D%221080%22%3E%3Crect fill%3D%22%230f172a%22 width%3D%221920%22 height%3D%221080%22%2F%3E%3C%2Fsvg%3E';
-        });
+        (function() {
+            var bg = document.getElementById('bgImage');
+            if (!bg) return;
+            var fallbacks = [
+                'https://api.btstu.cn/bing/api.php',
+                'data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 width%3D%221920%22 height%3D%221080%22%3E%3Cdefs%3E%3ClinearGradient id%3D%22g%22 x1%3D%220%25%22 y1%3D%220%25%22 x2%3D%22100%25%22 y2%3D%22100%25%22%3E%3Cstop offset%3D%220%25%22 stop-color%3D%22%232563eb%22%2F%3E%3Cstop offset%3D%22100%25%22 stop-color%3D%22%230d9488%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect fill%3D%22url(%23g)%22 width%3D%221920%22 height%3D%221080%22%2F%3E%3C%2Fsvg%3E'
+            ];
+            var idx = 0;
+            bg.addEventListener('error', function() {
+                idx++;
+                if (idx < fallbacks.length) {
+                    this.src = fallbacks[idx];
+                }
+            });
+        })();
 
         // ===== Scroll Reveal =====
         const observer = new IntersectionObserver((entries) => {
@@ -1107,7 +1122,7 @@
 
         // ===== Scroll indicator =====
         document.querySelector('.scroll-indicator')?.addEventListener('click', () => {
-            document.getElementById('resources-section')?.scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('announcement')?.scrollIntoView({ behavior: 'smooth' });
         });
 
         // ===== Modal controls =====
