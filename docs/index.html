@@ -962,27 +962,27 @@
                 </h3>
                 <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:16px;">并不是我们工作室的项目 awa，不过来推荐一下</p>
                 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-bottom:32px;">
-                    <a href="https://home.sails.qxwkstudio.top" target="_blank" rel="noopener noreferrer" class="link-card">
+                    <a href="javascript:void(0)" onclick="showDevToast()" class="link-card">
                         <span style="font-weight:600;">Sails · 个人主页</span>
                         <span style="font-size:0.84rem;color:var(--text-secondary);">StarsailsClover的个人主页，汇聚项目与动态</span>
                     </a>
-                    <a href="https://fastlink.sails.qxwkstudio.top" target="_blank" rel="noopener noreferrer" class="link-card">
+                    <a href="javascript:void(0)" onclick="showDevToast()" class="link-card">
                         <span style="font-weight:600;">Sails · FastLink</span>
                         <span style="font-size:0.84rem;color:var(--text-secondary);">异闪 FastLink：新一代全能网络协议</span>
                     </a>
-                    <a href="https://mnmcp.sails.qxwkstudio.top" target="_blank" rel="noopener noreferrer" class="link-card">
+                    <a href="javascript:void(0)" onclick="showDevToast()" class="link-card">
                         <span style="font-weight:600;">Sails · MnMcP</span>
                         <span style="font-size:0.84rem;color:var(--text-secondary);">Minecraft ↔ MiniWorld 互联</span>
                     </a>
-                    <a href="https://blockconnect.sails.qxwkstudio.top" target="_blank" rel="noopener noreferrer" class="link-card">
+                    <a href="javascript:void(0)" onclick="showDevToast()" class="link-card">
                         <span style="font-weight:600;">Sails · BlockConnect</span>
                         <span style="font-size:0.84rem;color:var(--text-secondary);">世界联结 BlockConnect：Connect the Worlds</span>
                     </a>
-                    <a href="https://hpbi.sails.qxwkstudio.top" target="_blank" rel="noopener noreferrer" class="link-card">
+                    <a href="javascript:void(0)" onclick="showDevToast()" class="link-card">
                         <span style="font-weight:600;">Sails · HPBI</span>
                         <span style="font-size:0.84rem;color:var(--text-secondary);">人类生产力助推计划 HPBI</span>
                     </a>
-                    <a href="https://oxygenai.sails.qxwkstudio.top" target="_blank" rel="noopener noreferrer" class="link-card">
+                    <a href="javascript:void(0)" onclick="showDevToast()" class="link-card">
                         <span style="font-weight:600;">Sails · Oxygen AI</span>
                         <span style="font-size:0.84rem;color:var(--text-secondary);">源氧 Oxygen AI Lab：人工智能实验室</span>
                     </a>
@@ -1017,6 +1017,37 @@
             transition:transform var(--transition), box-shadow var(--transition);
         }
         .link-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); border-color:rgba(37,99,235,0.2); }
+
+        /* ===== Toast 通知 ===== */
+        .dev-toast {
+            position: fixed;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            color: #0f172a;
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+            z-index: 9999;
+            transition: top 0.35s ease, opacity 0.35s ease;
+            opacity: 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid var(--border);
+        }
+        .dev-toast svg {
+            color: #2563eb;
+            flex-shrink: 0;
+        }
+        .dev-toast.show {
+            top: 80px;
+            opacity: 1;
+        }
     </style>
 
     <!-- ===== Footer ===== -->
@@ -1046,6 +1077,12 @@
             </div>
             <button class="modal-close" onclick="closeDownloadModal()">关闭</button>
         </div>
+    </div>
+
+    <!-- ===== 开发中 Toast ===== -->
+    <div id="devToast" class="dev-toast">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+        开发中
     </div>
 
     <script>
@@ -1184,6 +1221,17 @@
                     }
                 });
             });
+        }
+
+        // ===== 开发中 Toast =====
+        let toastTimer = null;
+        function showDevToast() {
+            const toast = document.getElementById('devToast');
+            if (toastTimer) clearTimeout(toastTimer);
+            toast.classList.add('show');
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
         }
 
         // ===== Photo Stack =====
