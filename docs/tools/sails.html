@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sails今天工作了吗？ - 青翔未阔工作室</title>
+    <meta name="description" content="查看 StarsailsClover 的 GitHub 活跃度、贡献日历与项目动态。">
+    <link rel="icon" type="image/webp" href="/favicon.webp">
+    <style>
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --primary: #2563eb;
+            --secondary: #0d9488; --surface: #ffffff; --bg: #f8fafc;
+            --text-primary: #0f172a; --text-secondary: #64748b; --text-tertiary: #94a3b8;
+            --border: #e2e8f0; --navbar-bg: rgba(255, 255, 255, 0.8);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06); --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+            --radius-sm: 8px; --radius-md: 14px;
+            --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
+            --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            --container: 1100px; --nav-height: 64px;
+            --l0: #ebedf0; --l1: #9be9a8; --l2: #40c463; --l3: #30a14e; --l4: #216e39;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-sans); background: var(--bg); color: var(--text-primary);
+            line-height: 1.6; -webkit-font-smoothing: antialiased;
+            min-height: 100vh; display: flex; flex-direction: column;
+        }
+        .navbar { position:sticky; top:0; width:100%; height:var(--nav-height); z-index:100;
+            background:var(--navbar-bg); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+            border-bottom:1px solid var(--border); }
+        .navbar-inner { max-width:var(--container); margin:0 auto; padding:0 24px;
+            display:flex; align-items:center; justify-content:space-between; height:100%; }
+        .navbar-brand { display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text-primary);
+            font-weight:600; font-size:1.15rem; letter-spacing:0.3px; transition:opacity var(--transition); }
+        .navbar-brand:hover { opacity:0.85; }
+        .back-link { display:inline-flex; align-items:center; gap:6px; padding:8px 18px;
+            background:rgba(37,99,235,0.15); color:var(--text-primary); text-decoration:none;
+            border-radius:40px; font-size:0.88rem; font-weight:500;
+            backdrop-filter:blur(4px); border:1px solid rgba(147,197,253,0.35);
+            transition:all var(--transition); white-space:nowrap; }
+        .back-link:hover { background:rgba(37,99,235,0.3); border-color:rgba(147,197,253,0.6); transform:scale(1.02); }
+        .main { flex:1; padding:36px 24px 60px; }
+        .container { max-width:var(--container); margin:0 auto; }
+        .page-header { margin-bottom:28px; }
+        .page-header h1 { font-size:clamp(1.4rem,3vw,1.8rem); font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+        .page-header .subtitle { font-size:0.92rem; color:var(--text-secondary); margin-top:6px; }
+
+        /* Profile Card */
+        .profile-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+            padding:28px; margin-bottom:24px; display:flex; gap:24px; align-items:flex-start;
+            box-shadow:var(--shadow-sm); flex-wrap:wrap; }
+        .nudge-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+            padding:20px 24px; margin-bottom:24px; display:flex; flex-direction:column; gap:12px;
+            box-shadow:var(--shadow-sm); }
+        .nudge-counter { font-size:1.05rem; font-weight:600; color:var(--text-primary); text-align:center; padding-bottom:12px;
+            border-bottom:1px solid var(--border); }
+        .nudge-counter strong { color:var(--primary); font-weight:700; }
+        .nudge-actions { display:flex; gap:10px; justify-content:center; max-width:420px; margin:0 auto; }
+        .nudge-actions .nudge-btn { min-width:140px; }
+        .export-btn { width:40px; height:40px; background:var(--bg); border:1px solid var(--border);
+            border-radius:var(--radius-sm); font-size:1.1rem; color:var(--text-secondary);
+            cursor:pointer; transition:all var(--transition); display:inline-flex; align-items:center;
+            justify-content:center; padding:0; line-height:1; }
+        .export-btn:hover { border-color:var(--primary); color:var(--primary); background:#eff6ff; }
+
+        /* Share Modal */
+        .share-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+            z-index:2000; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px);
+            justify-content:center; align-items:center; padding:20px;
+            animation:modalFadeIn 0.2s ease; }
+        .share-overlay.active { display:flex; }
+        @keyframes modalFadeIn { from { opacity:0; } to { opacity:1; } }
+        .share-dialog { background:var(--surface); border-radius:20px; padding:32px 28px;
+            width:100%; max-width:min(90vw,380px); box-shadow:0 25px 60px rgba(0,0,0,0.25);
+            animation:shareIn 0.25s ease; text-align:center; overflow:hidden; }
+        @keyframes shareIn { from { transform:translateY(16px) scale(0.97); opacity:0; } to { transform:translateY(0) scale(1); opacity:1; } }
+        .share-dialog .share-avatar { width:64px; height:64px; border-radius:50%; margin:0 auto 12px; overflow:hidden;
+            border:3px solid var(--border); }
+        .share-dialog .share-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+        .share-dialog h3 { font-size:1.2rem; font-weight:700; color:var(--text-primary); margin-bottom:12px; }
+        .share-count { font-size:3rem; font-weight:800; color:var(--primary); line-height:1.1; }
+        .share-count-label { font-size:0.82rem; color:var(--text-tertiary); margin-bottom:8px; }
+        .share-quote { font-size:0.88rem; color:var(--text-primary); background:var(--bg);
+            border-radius:var(--radius-sm); padding:12px 14px; margin:16px 0 20px;
+            border-left:3px solid var(--primary); text-align:left; line-height:1.5; }
+        .share-close-btn { width:100%; padding:10px 0; background:var(--bg); border:1.5px solid var(--border);
+            border-radius:var(--radius-sm); font-size:0.92rem; font-weight:500; color:var(--text-secondary);
+            cursor:pointer; transition:all var(--transition); margin-top:4px; }
+        .share-close-btn:hover { background:var(--border); color:var(--text-primary); }
+        .nudge-top { display:flex; align-items:center; gap:14px; max-width:420px; margin:0 auto; }
+        .nudge-avatar { width:64px; height:64px; min-width:64px; border-radius:50%; overflow:hidden;
+            transition:transform 0.15s cubic-bezier(0.34,1.56,0.64,1); transform-origin:bottom center; }
+        .nudge-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+        .nudge-avatar.squished { transform:scaleX(1.15) scaleY(0.65); }
+        .nudge-bubble { position:relative; background:var(--bg); border:1px solid var(--border);
+            border-radius:6px 16px 16px 16px; padding:10px 14px; font-size:0.88rem; color:var(--text-primary);
+            user-select:none; transition:background var(--transition); flex:1;
+            min-height:2.2em; display:flex; align-items:center; }
+        .nudge-bubble::before { content:''; position:absolute; left:-6px; top:12px;
+            width:10px; height:10px; background:var(--bg); border-left:1px solid var(--border);
+            border-bottom:1px solid var(--border); transform:rotate(45deg); }
+        .nudge-bubble.clicked { animation:quotePop 0.25s ease; }
+        @keyframes quotePop { 0%{transform:scale(0.96);opacity:0.6} 100%{transform:scale(1);opacity:1} }
+        .nudge-btn { padding:10px; background:linear-gradient(135deg,var(--primary),var(--secondary));
+            color:#fff; border:none; border-radius:var(--radius-sm); font-size:0.9rem; font-weight:600; cursor:pointer;
+            transition:transform var(--transition), box-shadow var(--transition); }
+        .nudge-btn:hover { box-shadow:0 4px 16px rgba(37,99,235,0.25); }
+        .nudge-btn:active { transform:scale(0.98); }
+        .profile-avatar { width:96px; height:96px; border-radius:50%; border:3px solid var(--border);
+            flex-shrink:0; overflow:hidden; }
+        .profile-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+        .profile-info { flex:1; min-width:200px; }
+        .profile-info h2 { font-size:1.35rem; font-weight:700; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .profile-info h2 .gh-login { font-size:0.92rem; font-weight:400; color:var(--text-secondary); text-decoration:none; }
+        .profile-info h2 .gh-login:hover { color:var(--primary); }
+        .profile-bio { font-size:0.9rem; color:var(--text-secondary); margin:6px 0 12px; }
+        .profile-meta { display:flex; flex-wrap:wrap; gap:4px 16px; font-size:0.84rem; color:var(--text-secondary); }
+        .profile-meta span { display:inline-flex; align-items:center; gap:4px; }
+        .profile-stats { display:flex; flex-wrap:wrap; gap:16px 28px; margin-top:14px; padding-top:14px;
+            border-top:1px solid var(--border); justify-content:space-between; }
+        .profile-stat { text-align:center; }
+        .profile-stat .num { font-size:1.25rem; font-weight:700; color:var(--text-primary); display:block; }
+        .profile-stat .label { font-size:0.76rem; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.5px; }
+
+        /* Section */
+        .section-card { background:var(--surface); border:1px solid var(--border);
+            border-radius:var(--radius-md); padding:24px; margin-bottom:24px;
+            box-shadow:var(--shadow-sm); }
+        .section-card h3 { font-size:1.05rem; font-weight:600; margin-bottom:16px;
+            display:flex; align-items:center; gap:8px; }
+
+        /* Contribution Calendar */
+        .contrib-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+        .contrib-total { font-size:0.88rem; color:var(--text-secondary); }
+        .contrib-total strong { color:var(--text-primary); font-weight:700; }
+        .calendar-wrap { overflow-x:auto; padding-bottom:8px; -webkit-overflow-scrolling:touch; }
+        .calendar-wrap table { min-width:max-content; }
+        @media (min-width:641px) { .calendar-wrap { display:flex; justify-content:center; } }
+        .calendar-table { border-collapse:separate; border-spacing:2px; table-layout:fixed; }
+        .calendar-table td { width:12px; height:12px; min-width:12px; min-height:12px; border-radius:2px; padding:0; }
+        @media (min-width:641px) { .calendar-table td { width:14px; height:14px; min-width:14px; min-height:14px; border-radius:2px; } }
+        .calendar-table td.l0 { background:var(--l0); }
+        .calendar-table td.l1 { background:var(--l1); }
+        .calendar-table td.l2 { background:var(--l2); }
+        .calendar-table td.l3 { background:var(--l3); }
+        .calendar-table td.l4 { background:var(--l4); }
+        .calendar-table td.week-label { width:auto; min-width:0; min-height:0; font-size:0.6rem; color:var(--text-tertiary);
+            padding:0 4px 0 0; text-align:right; vertical-align:middle; line-height:1; height:auto !important; }
+        .calendar-table td.month-label { min-width:0; min-height:0; font-size:0.6rem; color:var(--text-tertiary);
+            padding:0 0 2px 0; text-align:left; line-height:1; white-space:nowrap; height:auto !important; }
+        .calendar-legend { display:flex; align-items:center; justify-content:flex-end; gap:3px; margin-top:6px; font-size:0.65rem; color:var(--text-tertiary); }
+        .calendar-legend .box { width:12px; height:12px; border-radius:3px; }
+        .calendar-legend .box.l0 { background:var(--l0); }
+        .calendar-legend .box.l1 { background:var(--l1); }
+        .calendar-legend .box.l2 { background:var(--l2); }
+        .calendar-legend .box.l3 { background:var(--l3); }
+        .calendar-legend .box.l4 { background:var(--l4); }
+        .timeline-wrap { display:flex; gap:6px; align-items:flex-end; height:110px; overflow-x:auto; padding:16px 0 4px; }
+        .timeline-bar { flex:1; min-width:20px; display:flex; flex-direction:column; align-items:center; gap:4px; }
+        .timeline-bar .bar { width:100%; border-radius:4px 4px 0 0;
+            background:linear-gradient(180deg, var(--primary), var(--secondary));
+            transition:height var(--transition); }
+        .timeline-bar .month-label { font-size:0.65rem; color:var(--text-tertiary); white-space:nowrap; }
+        .timeline-bar .count-label { font-size:0.65rem; color:var(--text-secondary); font-weight:500; }
+
+        /* Repo Grid */
+        .repo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
+        .repo-card { display:flex; flex-direction:column; gap:6px; padding:16px;
+            background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm);
+            text-decoration:none; color:var(--text-primary);
+            transition:transform var(--transition), box-shadow var(--transition); }
+        .repo-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); }
+        .repo-name { font-weight:600; font-size:0.92rem; display:flex; align-items:center; gap:6px; }
+        .repo-name .fork-badge { font-size:0.65rem; background:var(--border); padding:1px 8px; border-radius:40px; font-weight:500; color:var(--text-secondary); }
+        .repo-desc { font-size:0.82rem; color:var(--text-secondary); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; line-clamp:2; overflow:hidden; }
+        .repo-meta { display:flex; align-items:center; gap:14px; font-size:0.76rem; color:var(--text-tertiary); margin-top:auto; }
+        .repo-meta .lang-dot { width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:2px; }
+        .repo-meta .stars { display:inline-flex; align-items:center; gap:2px; }
+
+        /* Orgs */
+        .org-list { display:flex; flex-wrap:wrap; gap:10px; }
+        .org-item { display:flex; align-items:center; gap:8px; padding:8px 14px;
+            background:var(--bg); border:1px solid var(--border); border-radius:40px;
+            text-decoration:none; color:var(--text-primary); font-size:0.84rem; font-weight:500;
+            transition:all var(--transition); }
+        .org-item:hover { border-color:var(--primary); color:var(--primary); }
+        .org-item img { width:22px; height:22px; border-radius:50%; }
+
+        /* States */
+        .loading-state { text-align:center; padding:80px 20px; color:var(--text-secondary); }
+        .spinner { display:inline-block; width:22px; height:22px; margin-right:8px;
+            border:2px solid var(--border); border-top-color:var(--primary); border-radius:50%;
+            animation:spin 0.8s linear infinite; vertical-align:middle; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .empty-state { text-align:center; padding:80px 20px; color:var(--text-tertiary); }
+        .error-msg { background:#fef2f2; border:1px solid #fecaca; color:#b91c1c;
+            padding:14px 18px; border-radius:var(--radius-sm); margin-bottom:16px; font-size:0.88rem; }
+        .footer { background:#0f172a; text-align:center; padding:28px 24px;
+            color:var(--text-tertiary); font-size:0.82rem; border-top:1px solid rgba(255,255,255,0.06); }
+        .footer-copy { opacity:0.6; }
+        @media (max-width:640px) {
+            .navbar-inner { padding:0 16px; }
+            .main { padding:24px 16px 40px; }
+            .profile-card { padding:24px; flex-direction:column; align-items:center; text-align:center; }
+            .profile-avatar { width:80px; height:80px; }
+            .profile-info { text-align:center; }
+            .profile-info h2 { justify-content:center; }
+            .profile-meta { justify-content:center; }
+            .profile-stats { justify-content:center; gap:16px 32px; }
+            .repo-grid { grid-template-columns:1fr; }
+            .section-card { padding:18px; }
+            .nudge-card { padding:16px 18px; gap:10px; }
+            .nudge-avatar { width:52px; height:52px; min-width:52px; }
+            .nudge-actions .nudge-btn { min-width:120px; }
+            .nudge-btn { font-size:0.84rem; padding:9px; }
+        }
+        @media (min-width:641px) {
+            .main { padding:36px 48px 60px; }
+            .profile-info h2 .gh-login { margin-left:4px; }
+        }
+        @media (prefers-reduced-motion:reduce) {
+            *, *::before, *::after { animation-duration:0.01ms!important; transition-duration:0.01ms!important; }
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="navbar-inner">
+            <a href="../index.html" class="navbar-brand">
+                <img src="/favicon.webp" alt="青翔未阔工作室" width="28" height="28" style="border-radius:5px;flex-shrink:0;">
+                <span>青翔未阔工作室</span>
+            </a>
+            <a href="../index.html" class="back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+                返回首页
+            </a>
+        </div>
+    </header>
+
+    <div class="main">
+        <div class="container">
+            <div class="page-header">
+                <h1>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                    Sails今天工作了吗？
+                </h1>
+                <div class="subtitle">实时追踪 StarsailsClover 的 GitHub 活跃状态</div>
+            </div>
+
+            <div id="app">
+                <div class="loading-state"><span class="spinner"></span>正在查询 Sails 的 GitHub 状态...</div>
+            </div>
+
+            <div style="margin-top:16px;text-align:center;font-size:0.78rem;color:var(--text-tertiary);">
+                数据来源：<span id="dataSource">GitHub API</span>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-copy">2026 青翔未阔工作室</div>
+    </footer>
+
+    <script>
+        const GITHUB_USER = 'StarsailsClover';
+        let GITHUB_TOKEN = '';
+        let NUDGE_QUOTES = [];
+
+        // ── 解密 token ──
+        // 优先级：Web Crypto API (AES-GCM) → XOR 解码
+        const _EK = [[205,62,238,119,105,60,86,111,196,76,254,171,91,219,140,137,205,39,69,166,217,228,90,72,198,16,10,234,129,136,136,162,188,216,48,149,117,188,15,182,162,137,212,147,109,174,32,58,30,90,135,219,125,253,57,79],[36,194,187,194,229,146,123,65,85,203,27,71],[255,181,60,250,211,171,130,22,51,225,180,74,21,115,162,72]];
+        const _DK = 'qxwk-sails-2026';
+        const _XK = [22,16,7,52,90,34,86,65,99,121,6,72,76,100,35,59,52,40,88,31,44,55,91,10,127,123,92,85,23,34,65,38,105,31,95,62,117,123,106,92];
+        const _XK_KEY = 'qxwk-xor-2026!';
+
+        function _xor(data, key) {
+            const k = new TextEncoder().encode(key), r = new Uint8Array(data.length);
+            for (let i = 0; i < data.length; i++) r[i] = data[i] ^ k[i % k.length];
+            return r;
+        }
+
+        async function _dk() {
+            // 优先使用 Web Crypto API（需 HTTPS/localhost）
+            if (typeof crypto !== 'undefined' && crypto.subtle && _EK.length && _DK) {
+                try {
+                    const keyMaterial = await crypto.subtle.importKey(
+                        'raw', new TextEncoder().encode(_DK),
+                        { name: 'PBKDF2' }, false, ['deriveKey']
+                    );
+                    const key = await crypto.subtle.deriveKey(
+                        { name: 'PBKDF2', salt: new Uint8Array(_EK[2]), iterations: 100000, hash: 'SHA-256' },
+                        keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['decrypt']
+                    );
+                    const plain = await crypto.subtle.decrypt(
+                        { name: 'AES-GCM', iv: new Uint8Array(_EK[1]) },
+                        key, new Uint8Array(_EK[0])
+                    );
+                    return new TextDecoder().decode(plain);
+                } catch (_) { /* fall through to XOR */ }
+            }
+            // 备用 XOR 解码（所有环境可用，无特征码）
+            try { return new TextDecoder().decode(_xor(_XK, _XK_KEY)); } catch (_) { return ''; }
+        }
+
+        // 辅助函数：在浏览器控制台使用此函数生成加密 token
+        // async function encryptToken(plaintext, password) {
+        //     const salt = crypto.getRandomValues(new Uint8Array(16));
+        //     const iv = crypto.getRandomValues(new Uint8Array(12));
+        //     const keyMaterial = await crypto.subtle.importKey('raw', new TextEncoder().encode(password),
+        //         { name: 'PBKDF2' }, false, ['deriveKey']);
+        //     const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+        //         keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['encrypt']);
+        //     const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(plaintext));
+        //     console.log('// 将此数组填入 _EK，密码填入 _DK');
+        //     console.log(JSON.stringify([Array.from(new Uint8Array(ct)), Array.from(iv), Array.from(salt)]));
+        // }
+
+        const LANG_COLORS = {
+            JavaScript: '#f1e05a', TypeScript: '#3178c6', Python: '#3572A5',
+            Java: '#b07219', Go: '#00ADD8', Rust: '#dea584', 'C++': '#f34b7d',
+            C: '#555555', 'C#': '#178600', HTML: '#e34c26', CSS: '#563d7c',
+            PHP: '#4F5D95', Ruby: '#701516', Shell: '#89e051', Swift: '#F05138',
+            Kotlin: '#A97BFF', Dart: '#00B4AB', Lua: '#000080', Vue: '#41b883',
+            Svelte: '#FF3E00', Scala: '#c22d40', Dockerfile: '#384d54',
+        };
+
+        const MONTH_NAMES = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+        const DAY_NAMES = ['','一','','三','','五',''];
+
+        const app = document.getElementById('app');
+
+        async function main() {
+            // 先解密 token，再访问 GitHub API
+            GITHUB_TOKEN = await _dk();
+
+            try {
+                const configRes = await fetch('sails.json');
+                if (configRes.ok) {
+                    const cfg = await configRes.json();
+                    NUDGE_QUOTES = cfg.quotes || [];
+                }
+            } catch (_) { /* config file not available */ }
+
+            try {
+                const [gitHubData, activity] = await Promise.all([
+                    fetchGitHubData(),
+                    fetchContributions().catch(() => null),
+                ]);
+                render(gitHubData, activity);
+            } catch (e) {
+                app.innerHTML = `
+                    <div class="error-msg">❌ 查询失败：${esc(e.message)}</div>
+                    <div class="empty-state">请稍后刷新重试。</div>
+                `;
+            }
+        }
+
+        async function fetchGitHubData() {
+            document.getElementById('dataSource').textContent = 'GitHub API (+ GraphQL)';
+
+            const headers = GITHUB_TOKEN ? { 'Authorization': `Bearer ${GITHUB_TOKEN}` } : {};
+            const [userRes, orgsRes, reposRes] = await Promise.all([
+                fetch(`https://api.github.com/users/${GITHUB_USER}`, { headers }),
+                fetch(`https://api.github.com/users/${GITHUB_USER}/orgs`, { headers }),
+                fetch(`https://api.github.com/users/${GITHUB_USER}/repos?sort=pushed&per_page=6`, { headers }),
+            ]);
+
+            if (!userRes.ok) throw new Error(`GitHub API 请求失败 (${userRes.status})`);
+
+            const user = await userRes.json();
+            const orgs = orgsRes.ok ? await orgsRes.json() : [];
+            const repos = reposRes.ok ? await reposRes.json() : [];
+
+            return { user, orgs, repos };
+        }
+
+        async function fetchContributions() {
+            if (!GITHUB_TOKEN) return null;
+
+            const query = `query {
+              user(login: "${GITHUB_USER}") {
+                contributionsCollection {
+                  contributionCalendar {
+                    totalContributions
+                    weeks {
+                      contributionDays {
+                        date
+                        contributionCount
+                        color
+                        weekday
+                      }
+                    }
+                  }
+                }
+              }
+            }`;
+
+            const res = await fetch('https://api.github.com/graphql', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query }),
+            });
+
+            if (!res.ok) throw new Error(`GraphQL 请求失败 (${res.status})`);
+
+            const body = await res.json();
+            if (body.errors) throw new Error(body.errors[0].message);
+
+            return body.data.user.contributionsCollection.contributionCalendar;
+        }
+
+        function render(data, activity) {
+            app.innerHTML = '';
+
+            const todayCount = getTodayCount(activity);
+            app.appendChild(createStatusBanner(todayCount));
+            app.appendChild(createProfileCard(data.user));
+            app.appendChild(createNudgeCard(data.user));
+
+            if (activity) {
+                app.appendChild(createContributionSection(activity));
+            }
+
+            if (data.orgs.length) {
+                const orgCards = data.orgs.map(o => ({ login: o.login, avatar_url: o.avatar_url, html_url: o.html_url }));
+                app.appendChild(createOrgsSection(orgCards));
+            }
+
+            if (data.repos.length) {
+                const repoCards = data.repos.map(r => ({
+                    name: r.name, html_url: r.html_url, description: r.description,
+                    language: r.language, stargazers: r.stargazers_count,
+                    forks: r.forks_count, fork: r.fork, pushed_at: r.pushed_at,
+                }));
+                app.appendChild(createReposSection('📦 最近活跃仓库', repoCards));
+            }
+        }
+
+        function getTodayCount(activity) {
+            if (!activity) return -1;
+            const today = new Date();
+            const dateStr = today.toISOString().slice(0, 10);
+            for (const week of activity.weeks) {
+                for (const day of week.contributionDays) {
+                    if (day.date === dateStr) return day.contributionCount;
+                }
+            }
+            return 0;
+        }
+
+        function createStatusBanner(todayCount) {
+            const working = todayCount > 0;
+            const div = document.createElement('div');
+            div.style.cssText = `
+                background:${working ? 'linear-gradient(135deg,#d1fae5,#a7f3d0)' : todayCount === 0 ? 'linear-gradient(135deg,#fef3c7,#fde68a)' : 'linear-gradient(135deg,#e2e8f0,#cbd5e1)'};
+                border:1px solid ${working ? '#6ee7b7' : todayCount === 0 ? '#fcd34d' : '#94a3b8'};
+                border-radius:var(--radius-md); padding:20px 24px; margin-bottom:24px;
+                display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+            `;
+            div.innerHTML = `
+                <span style="font-size:2rem;line-height:1;">${working ? '✅' : todayCount === 0 ? '💤' : '🔌'}</span>
+                <div>
+                    <div style="font-size:1.1rem;font-weight:700;color:var(--text-primary);">
+                        ${working ? 'Sails 今天也有在写代码！' : todayCount === 0 ? 'Sails 今天还没提交（摸鱼中...）' : 'Token 未配置，无法查询贡献'}
+                    </div>
+                </div>
+            `;
+            return div;
+        }
+
+        function createContributionSection(cal) {
+            const section = document.createElement('div');
+            section.className = 'section-card';
+
+            const header = document.createElement('div');
+            header.className = 'contrib-header';
+            header.innerHTML = `
+                <h3>📊 贡献日历</h3>
+                <div class="contrib-total">过去一年 <strong>${cal.totalContributions}</strong> 次贡献</div>
+            `;
+            section.appendChild(header);
+
+            const wrap = document.createElement('div');
+            wrap.className = 'calendar-wrap';
+
+            const table = document.createElement('table');
+            table.className = 'calendar-table';
+
+            const monthRow = document.createElement('tr');
+            const emptyLabel = document.createElement('td');
+            emptyLabel.className = 'week-label';
+            monthRow.appendChild(emptyLabel);
+
+            let lastMonth = -1;
+            for (const week of cal.weeks) {
+                if (!week.contributionDays.length) continue;
+                const d = new Date(week.contributionDays[0].date + 'T00:00:00');
+                const m = d.getMonth();
+                const td = document.createElement('td');
+                td.className = 'month-label';
+                if (m !== lastMonth) {
+                    td.textContent = MONTH_NAMES[m];
+                    lastMonth = m;
+                }
+                monthRow.appendChild(td);
+            }
+            table.appendChild(monthRow);
+
+            for (let dayIdx = 0; dayIdx < 7; dayIdx++) {
+                const row = document.createElement('tr');
+                const label = document.createElement('td');
+                label.className = 'week-label';
+                label.textContent = DAY_NAMES[dayIdx] || '';
+                row.appendChild(label);
+
+                for (const week of cal.weeks) {
+                    const day = week.contributionDays.find(d => {
+                        const dt = new Date(d.date + 'T00:00:00');
+                        return dt.getDay() === dayIdx;
+                    });
+                    const td = document.createElement('td');
+                    if (day) {
+                        td.className = getLevel(day.contributionCount);
+                        td.title = `${day.date}: ${day.contributionCount} 次贡献`;
+                    } else {
+                        td.className = 'l0';
+                    }
+                    row.appendChild(td);
+                }
+                table.appendChild(row);
+            }
+
+            wrap.appendChild(table);
+            section.appendChild(wrap);
+
+            // 滚动到最新提交（最右侧）
+            requestAnimationFrame(() => { wrap.scrollLeft = wrap.scrollWidth; });
+
+            const legend = document.createElement('div');
+            legend.className = 'calendar-legend';
+            legend.innerHTML = `少 <span class="box l0"></span><span class="box l1"></span><span class="box l2"></span><span class="box l3"></span><span class="box l4"></span> 多`;
+            section.appendChild(legend);
+
+            // Timeline (last 12 months from contribution days)
+            const timelineMap = {};
+            for (const week of cal.weeks) {
+                for (const day of week.contributionDays) {
+                    const m = day.date.slice(0, 7);
+                    timelineMap[m] = (timelineMap[m] || 0) + day.contributionCount;
+                }
+            }
+            const timeline = Object.entries(timelineMap).sort((a, b) => a[0].localeCompare(b[0]));
+            if (timeline.length) {
+                const maxCount = Math.max(...timeline.map(t => t[1]), 1);
+                const BAR_MAX_HEIGHT = 50;
+                const ts = document.createElement('div');
+                ts.style.cssText = 'margin-top:20px;padding-top:16px;border-top:1px solid var(--border);';
+                ts.innerHTML = '<h3 style="font-size:0.95rem;font-weight:600;margin-bottom:12px;">📈 月度贡献趋势</h3>';
+                const wrap2 = document.createElement('div');
+                wrap2.className = 'timeline-wrap';
+                for (const [month, count] of timeline) {
+                    const barH = Math.max(Math.round((count / maxCount) * BAR_MAX_HEIGHT), 2);
+                    wrap2.innerHTML += `
+                        <div class="timeline-bar">
+                            <span class="count-label">${count}</span>
+                            <div class="bar" style="height:${barH}px;"></div>
+                            <span class="month-label">${month.slice(5)}</span>
+                        </div>
+                    `;
+                }
+                ts.appendChild(wrap2);
+                section.appendChild(ts);
+            }
+
+            return section;
+        }
+
+        function getLevel(count) {
+            if (count === 0) return 'l0';
+            if (count <= 3) return 'l1';
+            if (count <= 6) return 'l2';
+            if (count <= 9) return 'l3';
+            return 'l4';
+        }
+
+        function playWhipSound() {
+            try {
+                const a = new Audio('sails.mp3');
+                a.volume = 0.5;
+                a.play().catch(() => {});
+            } catch (_) {}
+        }
+
+        function createNudgeCard(user) {
+            let nudgeCount = 0;
+
+            const card = document.createElement('div');
+            card.className = 'nudge-card';
+
+            const counter = document.createElement('div');
+            counter.className = 'nudge-counter';
+            counter.innerHTML = '已鞭策 Sails <strong>0</strong> 次';
+
+            const top = document.createElement('div');
+            top.className = 'nudge-top';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'nudge-avatar';
+            avatar.innerHTML = `<img src="${escAttr(user.avatar_url)}" alt="${esc(user.login)}" loading="lazy">`;
+
+            const bubble = document.createElement('div');
+            bubble.className = 'nudge-bubble';
+            bubble.style.cssText = 'border:none;background:transparent;cursor:default;';
+            bubble.textContent = '';
+
+            function doNudge() {
+                nudgeCount++;
+                counter.innerHTML = `已鞭策 Sails <strong>${nudgeCount}</strong> 次`;
+
+                avatar.classList.remove('squished');
+                void avatar.offsetWidth;
+                avatar.classList.add('squished');
+                setTimeout(() => avatar.classList.remove('squished'), 300);
+                playWhipSound();
+
+                const quotes = NUDGE_QUOTES.length ? NUDGE_QUOTES : ['该干活了！'];
+                const q = quotes[Math.floor(Math.random() * quotes.length)];
+                bubble.textContent = q;
+                bubble.style.cssText = 'position:relative;background:var(--bg);border:1px solid var(--border);border-radius:6px 16px 16px 16px;padding:10px 14px;font-size:0.88rem;color:var(--text-primary);flex:1;min-height:2.2em;display:flex;align-items:center;';
+                bubble.classList.remove('clicked');
+                void bubble.offsetWidth;
+                bubble.classList.add('clicked');
+            }
+
+            top.appendChild(avatar);
+            top.appendChild(bubble);
+
+            const actions = document.createElement('div');
+            actions.className = 'nudge-actions';
+
+            const btn = document.createElement('button');
+            btn.className = 'nudge-btn';
+            btn.textContent = '鞭策Sails';
+
+            btn.addEventListener('click', doNudge);
+
+            const exportBtn = document.createElement('button');
+            exportBtn.className = 'export-btn';
+            exportBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`;
+
+            exportBtn.addEventListener('click', function() {
+                const overlay = document.createElement('div');
+                overlay.className = 'share-overlay active';
+
+                const dialog = document.createElement('div');
+                dialog.className = 'share-dialog';
+                dialog.style.background = '#fff';
+
+                dialog.innerHTML = `
+                    <div class="share-avatar"><img src="${escAttr(user.avatar_url)}" alt=""></div>
+                    <h3>鞭策 Sails</h3>
+                    <div class="share-count">${nudgeCount}</div>
+                    <div class="share-count-label">已鞭策次数</div>
+                    ${bubble.textContent ? `<div class="share-quote">"${esc(bubble.textContent)}"</div>` : ''}
+                    <button class="share-close-btn">关闭</button>
+                `;
+
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === overlay) overlay.remove();
+                });
+
+                dialog.querySelector('.share-close-btn').addEventListener('click', () => overlay.remove());
+
+                overlay.appendChild(dialog);
+                document.body.appendChild(overlay);
+            });
+
+            actions.appendChild(btn);
+            actions.appendChild(exportBtn);
+
+            card.appendChild(counter);
+            card.appendChild(top);
+            card.appendChild(actions);
+            return card;
+        }
+
+        function createProfileCard(data) {
+            const card = document.createElement('div');
+            card.className = 'profile-card';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'profile-avatar';
+            avatar.innerHTML = `<img src="${escAttr(data.avatar_url)}" alt="${esc(data.login)}" loading="lazy">`;
+
+            const info = document.createElement('div');
+            info.className = 'profile-info';
+
+            const nameLine = document.createElement('h2');
+            nameLine.innerHTML = `
+                ${esc(data.name || data.login)}
+                <a href="${escAttr(data.html_url)}" target="_blank" rel="noopener noreferrer" class="gh-login">@${esc(data.login)}</a>
+            `;
+            info.appendChild(nameLine);
+
+            if (data.bio) {
+                const bio = document.createElement('div');
+                bio.className = 'profile-bio';
+                bio.textContent = data.bio;
+                info.appendChild(bio);
+            }
+
+            const meta = document.createElement('div');
+            meta.className = 'profile-meta';
+            const metaItems = [];
+            if (data.company) metaItems.push(`🏢 ${esc(data.company)}`);
+            if (data.location) metaItems.push(`📍 ${esc(data.location)}`);
+            if (data.blog) metaItems.push(`🌐 <a href="${escAttr(data.blog)}" target="_blank" rel="noopener noreferrer" style="color:var(--primary);text-decoration:none;">${esc(data.blog)}</a>`);
+            if (data.email) metaItems.push(`✉️ ${esc(data.email)}`);
+            if (data.twitter_username) metaItems.push(`🐦 @${esc(data.twitter_username)}`);
+            const created = new Date(data.created_at);
+            metaItems.push(`📅 加入于 ${created.getFullYear()}`);
+            meta.innerHTML = metaItems.join('<span style="color:var(--border);">|</span>');
+            info.appendChild(meta);
+
+            const stats = document.createElement('div');
+            stats.className = 'profile-stats';
+            stats.innerHTML = `
+                <div class="profile-stat"><span class="num">${data.public_repos}</span><span class="label">仓库</span></div>
+                <div class="profile-stat"><span class="num">${data.followers}</span><span class="label">关注者</span></div>
+                <div class="profile-stat"><span class="num">${data.following}</span><span class="label">正在关注</span></div>
+                <div class="profile-stat"><span class="num">${data.public_gists}</span><span class="label">代码片段</span></div>
+            `;
+            info.appendChild(stats);
+
+            card.appendChild(avatar);
+            card.appendChild(info);
+            return card;
+        }
+
+        function createOrgsSection(orgs) {
+            const section = document.createElement('div');
+            section.className = 'section-card';
+            section.innerHTML = '<h3>🏢 所属组织</h3>';
+            const list = document.createElement('div');
+            list.className = 'org-list';
+            for (const org of orgs) {
+                const a = document.createElement('a');
+                a.href = org.html_url;
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                a.className = 'org-item';
+                a.innerHTML = `<img src="${escAttr(org.avatar_url)}" alt="${esc(org.login)}" loading="lazy">${esc(org.login)}`;
+                list.appendChild(a);
+            }
+            section.appendChild(list);
+            return section;
+        }
+
+        function createReposSection(title, repos) {
+            const section = document.createElement('div');
+            section.className = 'section-card';
+            section.innerHTML = `<h3>${esc(title)} <span style="font-size:0.82rem;font-weight:400;color:var(--text-tertiary);">(${repos.length})</span></h3>`;
+            const grid = document.createElement('div');
+            grid.className = 'repo-grid';
+            for (const repo of repos) {
+                const a = document.createElement('a');
+                a.href = repo.html_url;
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                a.className = 'repo-card';
+
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'repo-name';
+                nameDiv.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    ${esc(repo.name)}
+                    ${repo.fork ? '<span class="fork-badge">Fork</span>' : ''}
+                `;
+                a.appendChild(nameDiv);
+
+                if (repo.description) {
+                    const desc = document.createElement('div');
+                    desc.className = 'repo-desc';
+                    desc.textContent = repo.description;
+                    a.appendChild(desc);
+                }
+
+                const meta = document.createElement('div');
+                meta.className = 'repo-meta';
+                if (repo.language) {
+                    const color = LANG_COLORS[repo.language] || '#ccc';
+                    meta.innerHTML += `<span><span class="lang-dot" style="background:${color};"></span>${esc(repo.language)}</span>`;
+                }
+                meta.innerHTML += `<span class="stars">★ ${repo.stargazers}</span>`;
+                if (repo.forks) meta.innerHTML += `<span>⑂ ${repo.forks}</span>`;
+                if (repo.pushed_at) {
+                    const d = new Date(repo.pushed_at);
+                    const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                    meta.innerHTML += `<span style="margin-left:auto;">${dateStr}</span>`;
+                }
+                a.appendChild(meta);
+
+                grid.appendChild(a);
+            }
+            section.appendChild(grid);
+            return section;
+        }
+
+        function esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+        function escAttr(t) { if (t == null) return ''; return t.replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+        main();
+    </script>
+</body>
+</html>

@@ -9,16 +9,16 @@
 ### 🏠 首页 (`index.html`)
 - **全屏必应每日壁纸**：自动加载高清壁纸，毛玻璃欢迎区域 + 一言语录
 - **项目概览**：照片堆叠展示工作室项目，支持触摸滑动切换
-- **资源中心**：站内下载、站外下载（蓝奏云弹窗）、画廊、页面仓库、MC 服务器状态、易错点测试
+- **资源中心**：站内下载、站外下载（蓝奏云弹窗）、画廊、页面仓库、MC 服务器状态、易错点测试、Sails GitHub 状态
 - **页面导航**：一中大辞典、邮箱站、关于我们、更多工具
 - **网站链接**：外部项目与合作站点直接展示
 
-### 📦 下载中心 (`download.html`)
+### 📦 下载中心 (`tools/download.html`)
 - 通过 **GitHub API** 动态列出 [QxwkFiles](https://github.com/TidalStarNan/QxwkFiles) 仓库文件
 - 多标签页支持，自动解析文件名日期并按倒序排列
 - 展示文件类型、大小、修改日期，一键下载
 
-### 🖼️ 画廊 (`gallery.html`)
+### 🖼️ 画廊 (`tools/gallery.html`)
 - 从 `QxwkFiles/image-gallery` 目录动态读取图片
 - 分类标签页，响应式图片网格
 - 灯箱放大查看，键盘快捷键切换
@@ -28,7 +28,7 @@
 - 工作室介绍 + 一键邮件联系
 - 团队卡片（摸鱼成员 / 特别贡献 / 域名赞助）
 
-### 🛠️ 错误页面 (`error.html`)
+### 🛠️ 错误页面 (`404.html`)
 - 仿 Cloudflare 风格错误页
 - 实时 UTC 时钟同步
 
@@ -38,7 +38,8 @@
 
 ### 🛠️ 工具页 (`tools/`)
 - **MC 服务器状态** (`mc-status.html`) — 查询 Minecraft 服务器在线状态、MOTD、玩家列表，支持多 API 回退
-- **易错点测试** (`questions.html`) — 26键拼音输入法易错点测试，随机抽题、计时答题、结果回顾
+- **易错点测试** (`26keys-quiz.html`) — 26键拼音输入法易错点测试，随机抽题、计时答题、结果回顾
+- **Sails GitHub 状态** (`sails.html`) — 查询 StarsailsClover 的 GitHub 用户信息、贡献日历、仓库动态
 
 ## 🔌 使用的 API 与服务
 
@@ -48,8 +49,8 @@
 | 一言 | `v1.hitokoto.cn` | 随机语录 |
 | 访客计数 | `hitscounter.dev` | 页面底部统计 |
 | UTC 时间 | `timeapi.io` | error 页实时时钟 |
-| GitHub API | `api.github.com/repos/{owner}/{repo}/contents/{path}` | 下载中心 & 画廊文件列表 |
-| 头像服务 | `weavatar.com` | 团队成员头像 |
+| GitHub REST API | `api.github.com/users/{user}` / `repos` / `orgs` | 下载中心、画廊、Sails 状态 |
+| GitHub GraphQL API | `api.github.com/graphql` | Sails 贡献日历 |
 
 ## 🧱 技术栈
 

@@ -1,6 +1,7 @@
 User-agent: *
-Disallow: /error.html
+Disallow: /404.html
 Disallow: /dictionary/*.json
-Disallow: /tools/questions.json
+Disallow: /tools/26keys-quiz.json
+Disallow: /tools/sails.json
 
 Sitemap: https://home.qxwkstudio.top/sitemap.xml

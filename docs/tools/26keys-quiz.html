@@ -177,7 +177,7 @@
                 <div class="quiz-info">
                     <div>
                         <h2 id="quizTitle" style="font-size:1.2rem; margin-bottom:4px;">26键拼音输入法易错点测试</h2>
-                        <p id="quizDescription" style="color:var(--text-secondary); font-size:0.9rem;">从40道题目中随机选择20道，每题 5 分</p>
+                        <p id="quizDescription" style="color:var(--text-secondary); font-size:0.9rem;">从题目库中随机选择20道，每题 5 分</p>
                     </div>
                     <div class="quiz-stats">
                         <div class="stat-item">
@@ -268,7 +268,7 @@
         // Load questions from JSON
         async function loadQuestions() {
             try {
-                const response = await fetch('./questions.json');
+                const response = await fetch('./26keys-quiz.json');
                 if (!response.ok) throw new Error('Failed to load questions');
                 const data = await response.json();
 
