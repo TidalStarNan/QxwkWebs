@@ -1,6 +1,6 @@
 {
   "title": "26键拼音输入法易错点测试",
-  "description": "从40道题目中随机选择20道，测试你的拼音输入准确性",
+  "description": "从题目库中随机选择20道，测试你的拼音输入准确性",
   "questions": 
   [
   {"question": "汉字女的正确按键是？", "options": ["nv", "nu", "ny", "ni"], "correct": 0},

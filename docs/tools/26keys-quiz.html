@@ -272,7 +272,6 @@
                 if (!response.ok) throw new Error('Failed to load questions');
                 const data = await response.json();
 
-                // Randomly select 20 questions from the 40 available
                 const shuffled = data.questions.sort(() => 0.5 - Math.random());
                 const selectedQuestions = shuffled.slice(0, 20);
 
