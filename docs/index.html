@@ -713,7 +713,7 @@
                 <span>青翔未阔工作室</span>
             </a>
             <div style="display:flex;align-items:center;gap:24px;">
-            <button onclick="alert('骗你的，没有夜间模式')" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:none;border:none;cursor:pointer;color:var(--text-primary);border-radius:50%;transition:background var(--transition);padding:0;" aria-label="夜间模式" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='none'">
+            <button onclick="playNightMusic()" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:none;border:none;cursor:pointer;color:var(--text-primary);border-radius:50%;transition:background var(--transition);padding:0;" aria-label="夜间模式" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='none'">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             </button>
             <div class="hamburger-wrap">
@@ -1325,6 +1325,90 @@
 
             loadPhotos();
         })();
+
+        // ===== 夜间模式音乐播放器 =====
+        function playNightMusic() {
+            // 避免重复创建
+            if (document.getElementById('musicPlayer')) return;
+
+            var w = document.createElement('div');
+            w.id = 'musicPlayer';
+            w.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;'
+                + 'background:rgba(255,255,255,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);'
+                + 'border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.12);border:1px solid #e2e8f0;'
+                + 'padding-top:28px;overflow:hidden;transition:box-shadow .2s;cursor:grab;user-select:none;';
+
+            // 拖动把手
+            var handle = document.createElement('div');
+            handle.style.cssText = 'position:absolute;top:0;left:0;right:0;height:28px;'
+                + 'display:flex;align-items:center;justify-content:center;cursor:grab;';
+            var bar = document.createElement('div');
+            bar.style.cssText = 'width:32px;height:4px;border-radius:2px;background:#cbd5e1;';
+            handle.appendChild(bar);
+            w.appendChild(handle);
+
+            // 关闭按钮
+            var close = document.createElement('button');
+            close.textContent = '\u2715';
+            close.style.cssText = 'position:absolute;top:4px;right:8px;width:24px;height:24px;'
+                + 'border:none;background:none;font-size:14px;cursor:pointer;color:#94a3b8;'
+                + 'border-radius:50%;display:flex;align-items:center;justify-content:center;'
+                + 'transition:background .2s,color .2s;line-height:1;z-index:1;';
+            close.onmouseover = function() { close.style.background = 'rgba(0,0,0,.05)'; close.style.color = '#0f172a'; };
+            close.onmouseout = function() { close.style.background = 'none'; close.style.color = '#94a3b8'; };
+            close.onclick = function(e) { e.stopPropagation(); w.remove(); };
+            w.appendChild(close);
+
+            // iframe 播放器
+            var iframe = document.createElement('iframe');
+            iframe.frameBorder = 'no';
+            iframe.marginWidth = '0';
+            iframe.marginHeight = '0';
+            iframe.width = '330';
+            iframe.height = '86';
+            iframe.src = '//music.163.com/outchain/player?type=2&id=5221167&auto=1&height=66';
+            iframe.style.cssText = 'display:block;';
+            w.appendChild(iframe);
+
+            document.body.appendChild(w);
+
+            // 拖动逻辑
+            var dragging = false, startX, startY, startLeft, startTop;
+            function onStart(e) {
+                if (e.target === close) return;
+                dragging = true;
+                w.style.cursor = 'grabbing';
+                w.style.boxShadow = '0 20px 60px rgba(0,0,0,.2)';
+                var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                var clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                startX = clientX; startY = clientY;
+                startLeft = w.offsetLeft; startTop = w.offsetTop;
+                w.style.right = 'auto'; w.style.bottom = 'auto';
+                w.style.left = startLeft + 'px'; w.style.top = startTop + 'px';
+            }
+            function onMove(e) {
+                if (!dragging) return;
+                e.preventDefault();
+                var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                var clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                w.style.left = (startLeft + clientX - startX) + 'px';
+                w.style.top = (startTop + clientY - startY) + 'px';
+            }
+            function onEnd() {
+                dragging = false;
+                w.style.cursor = 'grab';
+                w.style.boxShadow = '0 12px 40px rgba(0,0,0,.12)';
+            }
+            handle.addEventListener('mousedown', onStart);
+            handle.addEventListener('touchstart', onStart, { passive: false });
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('touchmove', onMove, { passive: false });
+            document.addEventListener('mouseup', onEnd);
+            document.addEventListener('touchend', onEnd);
+
+            // 弹窗提示
+            setTimeout(function() { alert('骗你的，没有夜间模式'); }, 200);
+        }
     </script>
 </body>
 </html>
