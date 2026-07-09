@@ -164,6 +164,20 @@
         .timeline-bar .month-label { font-size:0.65rem; color:var(--text-tertiary); white-space:nowrap; }
         .timeline-bar .count-label { font-size:0.65rem; color:var(--text-secondary); font-weight:500; }
 
+        /* Event List */
+        .event-list { display:flex; flex-direction:column; }
+        .event-item { display:flex; align-items:flex-start; gap:12px; padding:10px 12px; border-radius:var(--radius-sm); transition:background var(--transition); }
+        .event-item:hover { background:var(--bg); }
+        .event-item + .event-item { border-top:1px solid var(--border); }
+        .event-icon { font-size:1.1rem; width:28px; text-align:center; flex-shrink:0; margin-top:3px; }
+        .event-body { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+        .event-title-row { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+        .event-title { font-size:0.95rem; font-weight:600; color:var(--text-primary); line-height:1.4; }
+        .event-time { font-size:0.72rem; color:var(--text-tertiary); white-space:nowrap; flex-shrink:0; }
+        .event-desc { font-size:0.85rem; color:var(--text-secondary); line-height:1.5; }
+        .event-repo { font-size:0.79rem; color:var(--secondary); text-decoration:none; }
+        .event-repo:hover { color:var(--primary); }
+
         /* Repo Grid */
         .repo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
         .repo-card { display:flex; flex-direction:column; gap:6px; padding:16px;
@@ -253,7 +267,7 @@
             </div>
 
             <div style="margin-top:16px;text-align:center;font-size:0.78rem;color:var(--text-tertiary);">
-                数据来源：<span id="dataSource">GitHub API</span>
+                数据来源：GitHub API + GraphQL
             </div>
         </div>
     </div>
@@ -349,11 +363,12 @@
             } catch (_) { /* config file not available */ }
 
             try {
-                const [gitHubData, activity] = await Promise.all([
+                const [gitHubData, activity, events] = await Promise.all([
                     fetchGitHubData(),
                     fetchContributions().catch(() => null),
+                    fetchEvents().catch(() => []),
                 ]);
-                render(gitHubData, activity);
+                render(gitHubData, activity, events);
             } catch (e) {
                 app.innerHTML = `
                     <div class="error-msg">❌ 查询失败：${esc(e.message)}</div>
@@ -363,8 +378,6 @@
         }
 
         async function fetchGitHubData() {
-            document.getElementById('dataSource').textContent = 'GitHub API (+ GraphQL)';
-
             const headers = GITHUB_TOKEN ? { 'Authorization': `Bearer ${GITHUB_TOKEN}` } : {};
             const [userRes, orgsRes, reposRes] = await Promise.all([
                 fetch(`https://api.github.com/users/${GITHUB_USER}`, { headers }),
@@ -379,6 +392,14 @@
             const repos = reposRes.ok ? await reposRes.json() : [];
 
             return { user, orgs, repos };
+        }
+
+        async function fetchEvents() {
+            if (!GITHUB_TOKEN) return [];
+            const headers = { 'Authorization': `Bearer ${GITHUB_TOKEN}` };
+            const res = await fetch(`https://api.github.com/users/${GITHUB_USER}/events/public?per_page=15`, { headers });
+            if (!res.ok) return [];
+            return res.json();
         }
 
         async function fetchContributions() {
@@ -416,7 +437,7 @@
             return body.data.user.contributionsCollection.contributionCalendar;
         }
 
-        function render(data, activity) {
+        function render(data, activity, events) {
             app.innerHTML = '';
 
             const todayCount = getTodayCount(activity);
@@ -440,6 +461,10 @@
                     forks: r.forks_count, fork: r.fork, pushed_at: r.pushed_at,
                 }));
                 app.appendChild(createReposSection('📦 最近活跃仓库', repoCards));
+            }
+
+            if (events && events.length) {
+                app.appendChild(createEventsSection(events));
             }
         }
 
@@ -562,7 +587,7 @@
                 const BAR_MAX_HEIGHT = 50;
                 const ts = document.createElement('div');
                 ts.style.cssText = 'margin-top:20px;padding-top:16px;border-top:1px solid var(--border);';
-                ts.innerHTML = '<h3 style="font-size:0.95rem;font-weight:600;margin-bottom:12px;">📈 月度贡献趋势</h3>';
+                ts.innerHTML = '<h3>📈 月度贡献趋势</h3>';
                 const wrap2 = document.createElement('div');
                 wrap2.className = 'timeline-wrap';
                 for (const [month, count] of timeline) {
@@ -809,6 +834,191 @@
                 grid.appendChild(a);
             }
             section.appendChild(grid);
+            return section;
+        }
+
+        function relativeTime(dateStr) {
+            const now = new Date();
+            const d = new Date(dateStr);
+            const diff = Math.floor((now - d) / 1000);
+            if (diff < 60) return '刚刚';
+            if (diff < 3600) return Math.floor(diff / 60) + '分钟前';
+            if (diff < 86400) return Math.floor(diff / 3600) + '小时前';
+            if (diff < 2592000) return Math.floor(diff / 86400) + '天前';
+            if (diff < 31536000) return Math.floor(diff / 2592000) + '个月前';
+            return Math.floor(diff / 31536000) + '年前';
+        }
+
+        function createEventsSection(events) {
+            const section = document.createElement('div');
+            section.className = 'section-card';
+            section.innerHTML = '<h3>📡 最近动态</h3>';
+            const list = document.createElement('div');
+            list.className = 'event-list';
+
+            for (const e of events) {
+                const type = e.type;
+                const payload = e.payload;
+                const repoName = e.repo.name;
+
+                let iconChar = '📌';
+                let titleText = '';
+                let extraText = '';
+
+                switch (type) {
+                    case 'PushEvent': {
+                        iconChar = '📤';
+                        const ref = (payload.ref || '').replace('refs/heads/', '');
+                        titleText = '推送了提交';
+                        extraText = '到 ' + ref;
+                        break;
+                    }
+                    case 'IssuesEvent': {
+                        const a = payload.action === 'closed' ? '关闭' : (payload.action === 'opened' ? '创建' : payload.action);
+                        iconChar = payload.action === 'closed' ? '✅' : '🐛';
+                        titleText = a + ' Issue';
+                        if (payload.issue) {
+                            extraText = '#' + payload.issue.number + ' ' + payload.issue.title;
+                        }
+                        break;
+                    }
+                    case 'IssueCommentEvent': {
+                        iconChar = '💬';
+                        titleText = '评论了 Issue';
+                        if (payload.issue) {
+                            extraText = '#' + payload.issue.number + ' ' + payload.issue.title;
+                        }
+                        break;
+                    }
+                    case 'PullRequestEvent': {
+                        const isMerged = payload.pull_request && payload.pull_request.merged;
+                        const a = payload.action === 'opened' ? '创建' : (payload.action === 'closed' ? (isMerged ? '合并' : '关闭') : payload.action);
+                        iconChar = payload.action === 'opened' ? '🔀' : (isMerged ? '✅' : '❌');
+                        titleText = a + ' PR';
+                        if (payload.pull_request) {
+                            extraText = '#' + payload.pull_request.number + ' ' + payload.pull_request.title;
+                        }
+                        break;
+                    }
+                    case 'PullRequestReviewEvent': {
+                        iconChar = '👀';
+                        titleText = '审查了 PR';
+                        if (payload.pull_request) {
+                            extraText = '#' + payload.pull_request.number + ' ' + payload.pull_request.title;
+                        }
+                        break;
+                    }
+                    case 'PullRequestReviewCommentEvent': {
+                        iconChar = '💬';
+                        titleText = '评论了 PR';
+                        if (payload.pull_request) {
+                            extraText = '#' + payload.pull_request.number;
+                        }
+                        break;
+                    }
+                    case 'ReleaseEvent': {
+                        iconChar = '🏷️';
+                        const tag = payload.release ? payload.release.tag_name : '';
+                        titleText = '发布了版本';
+                        extraText = tag;
+                        break;
+                    }
+                    case 'CreateEvent': {
+                        iconChar = '📂';
+                        const refType = payload.ref_type || '';
+                        const ref = payload.ref || '';
+                        titleText = '创建了 ' + refType;
+                        if (ref) extraText = ref;
+                        break;
+                    }
+                    case 'DeleteEvent': {
+                        iconChar = '🗑️';
+                        const refType = payload.ref_type || '';
+                        const ref = payload.ref || '';
+                        titleText = '删除了 ' + refType;
+                        if (ref) extraText = ref;
+                        break;
+                    }
+                    case 'ForkEvent': {
+                        iconChar = '🍴';
+                        const forkName = payload.forkee ? payload.forkee.full_name : '';
+                        titleText = 'Fork 了仓库';
+                        if (forkName) extraText = forkName;
+                        break;
+                    }
+                    case 'WatchEvent': {
+                        iconChar = '⭐';
+                        titleText = 'Star 了仓库';
+                        break;
+                    }
+                    case 'PublicEvent': {
+                        iconChar = '🌍';
+                        titleText = '开源了仓库';
+                        break;
+                    }
+                    case 'GollumEvent': {
+                        iconChar = '📝';
+                        titleText = '更新了 Wiki';
+                        break;
+                    }
+                    case 'MemberEvent': {
+                        iconChar = '👥';
+                        titleText = '管理协作者';
+                        extraText = payload.action === 'added' ? '添加' : '移除';
+                        break;
+                    }
+                    default: {
+                        iconChar = '📌';
+                        titleText = type || '未知活动';
+                        break;
+                    }
+                }
+
+                const item = document.createElement('div');
+                item.className = 'event-item';
+
+                const icon = document.createElement('span');
+                icon.className = 'event-icon';
+                icon.textContent = iconChar;
+
+                const body = document.createElement('div');
+                body.className = 'event-body';
+
+                const titleRow = document.createElement('div');
+                titleRow.className = 'event-title-row';
+
+                const title = document.createElement('span');
+                title.className = 'event-title';
+                title.textContent = titleText;
+
+                const timeSpan = document.createElement('span');
+                timeSpan.className = 'event-time';
+                timeSpan.textContent = relativeTime(e.created_at);
+
+                titleRow.appendChild(title);
+                titleRow.appendChild(timeSpan);
+
+                const descDiv = document.createElement('div');
+                descDiv.className = 'event-desc';
+                descDiv.textContent = extraText ? titleText + ' ' + extraText : titleText;
+
+                const repoLink = document.createElement('a');
+                repoLink.className = 'event-repo';
+                repoLink.href = 'https://github.com/' + repoName;
+                repoLink.target = '_blank';
+                repoLink.rel = 'noopener noreferrer';
+                repoLink.textContent = repoName;
+
+                body.appendChild(titleRow);
+                body.appendChild(descDiv);
+                body.appendChild(repoLink);
+
+                item.appendChild(icon);
+                item.appendChild(body);
+                list.appendChild(item);
+            }
+
+            section.appendChild(list);
             return section;
         }
 
