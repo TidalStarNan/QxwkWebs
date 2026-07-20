@@ -174,11 +174,29 @@
         let allImages = {};      // { category: [items] }
         let currentImages = [];
         let lbIndex = 0;
+        let GITHUB_TOKEN = '';
+
+        // ===== 解密 Token (AES-GCM) =====
+        const _EK = [[205,62,238,119,105,60,86,111,196,76,254,171,91,219,140,137,205,39,69,166,217,228,90,72,198,16,10,234,129,136,136,162,188,216,48,149,117,188,15,182,162,137,212,147,109,174,32,58,30,90,135,219,125,253,57,79],[36,194,187,194,229,146,123,65,85,203,27,71],[255,181,60,250,211,171,130,22,51,225,180,74,21,115,162,72]];
+        const _DK = 'qxwk-sails-2026';
+
+        async function decryptToken() {
+            if (typeof crypto === 'undefined' || !crypto.subtle || !_EK.length || !_DK) return false;
+            try {
+                const keyMaterial = await crypto.subtle.importKey('raw', new TextEncoder().encode(_DK), 'PBKDF2', false, ['deriveKey']);
+                const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: new Uint8Array(_EK[2]), iterations: 100000, hash: 'SHA-256' }, keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+                const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: new Uint8Array(_EK[1]) }, key, new Uint8Array(_EK[0]));
+                GITHUB_TOKEN = new TextDecoder().decode(plain);
+                return true;
+            } catch (e) { return false; }
+        }
 
         // ===== GitHub API =====
         async function fetchDir(path) {
             const url = `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${path}?ref=${CONFIG.branch}`;
-            const r = await fetch(url);
+            const headers = {};
+            if (GITHUB_TOKEN) headers['Authorization'] = 'token ' + GITHUB_TOKEN;
+            const r = await fetch(url, { headers });
             if (!r.ok) throw new Error(`请求失败 (${r.status})`);
             return r.json();
         }
@@ -279,7 +297,7 @@
                     const img = imgs[idx];
                     const name = img.name.replace(/\.[^.]+$/, '');
                     html += `<div class="gallery-item" data-index="${idx}" onclick="openLightbox(${idx})" oncontextmenu="return false">
-                        <img src="${img.download_url}" alt="${escAttr(name)}" loading="lazy" draggable="false">
+                        <img src="${encodeUrl(img.download_url)}" alt="${escAttr(name)}" loading="lazy" draggable="false">
                         <div class="item-overlay">${esc(name)}</div>
                     </div>`;
                 }
@@ -312,13 +330,14 @@
         }
         function updateLightbox() {
             const img = currentImages[lbIndex];
-            document.getElementById('lbImage').src = img.download_url;
+            document.getElementById('lbImage').src = encodeUrl(img.download_url);
             document.getElementById('lbImage').alt = img.name;
             document.getElementById('lbCounter').textContent = `${lbIndex + 1} / ${currentImages.length}`;
         }
 
         function esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
         function escAttr(t) { return t.replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+        function encodeUrl(url) { return url.replace(/[^\x00-\x7F]/g, c => encodeURIComponent(c)); }
 
         // ===== Events =====
         document.getElementById('lbClose').addEventListener('click', closeLightbox);
@@ -335,7 +354,7 @@
             if (e.key === 'ArrowRight') nextImage();
         });
 
-        loadGallery();
+        decryptToken().then(() => loadGallery());
     </script>
 </body>
 </html>
