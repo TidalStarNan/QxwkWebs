@@ -790,7 +790,7 @@
         function createReposSection(title, repos) {
             const section = document.createElement('div');
             section.className = 'section-card';
-            section.innerHTML = `<h3>${esc(title)} <span style="font-size:0.82rem;font-weight:400;color:var(--text-tertiary);">(${repos.length})</span></h3>`;
+            section.innerHTML = `<h3>${esc(title)}</h3>`;
             const grid = document.createElement('div');
             grid.className = 'repo-grid';
             for (const repo of repos) {

@@ -52,7 +52,7 @@
         .tab-btn:hover { border-color:var(--primary); color:var(--primary); }
         .tab-btn.active { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:#fff; border-color:var(--primary); }
         /* Grid */
-        .gallery-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+        .gallery-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
         .gallery-item { position:relative; border-radius:var(--radius-sm); overflow:hidden;
             cursor:pointer; background:var(--surface); border:1px solid var(--border);
             aspect-ratio:4/3; transition:transform var(--transition), box-shadow var(--transition); }
@@ -64,8 +64,7 @@
         .gallery-item::after { content:''; position:absolute; inset:0; z-index:1; }
         .gallery-item .item-overlay { position:absolute; bottom:0; left:0; right:0;
             padding:10px 14px; background:linear-gradient(transparent, rgba(0,0,0,0.6));
-            color:#fff; font-size:0.82rem; opacity:0; transition:opacity var(--transition); }
-        .gallery-item:hover .item-overlay { opacity:1; }
+            color:#fff; font-size:0.82rem; opacity:1; }
         /* Lightbox */
         .lightbox { display:none; position:fixed; top:0; left:0; width:100%; height:100%;
             z-index:2000; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px);
@@ -97,6 +96,7 @@
         .footer { background:#0f172a; text-align:center; padding:28px 24px;
             color:var(--text-tertiary); font-size:0.82rem; border-top:1px solid rgba(255,255,255,0.06); }
         .footer-copy { opacity:0.6; }
+        @media (max-width:900px) { .gallery-grid { grid-template-columns:repeat(3,1fr); } }
         @media (max-width:640px) {
             .page-header { flex-direction:column; align-items:flex-start; }
             .navbar-inner { padding:0 16px; }
@@ -192,18 +192,32 @@
             try {
                 const items = await fetchDir(galleryDir);
                 const dirs = items.filter(i => i.type === 'dir');
-                const rootFiles = items.filter(i => i.type === 'file' && isImage(i));
 
                 allImages = {};
-                // Root level images
-                if (rootFiles.length) allImages['全部'] = rootFiles;
 
-                // Subdirectory categories
+                // Level 2: user directories → tabs
                 for (const dir of dirs) {
                     try {
-                        const files = await fetchDir(dir.path);
-                        const imgs = files.filter(f => f.type === 'file' && isImage(f));
-                        if (imgs.length) allImages[dir.name] = imgs;
+                        const userItems = await fetchDir(dir.path);
+                        const dateDirs = userItems.filter(i => i.type === 'dir');
+                        const userImgs = [];
+
+                        // Level 3: date subdirectories
+                        for (const dd of dateDirs) {
+                            try {
+                                const files = await fetchDir(dd.path);
+                                const imgs = files.filter(f => f.type === 'file' && isImage(f));
+                                imgs.forEach(img => img._date = dd.name);
+                                userImgs.push(...imgs);
+                            } catch (e) { /* skip failed */ }
+                        }
+
+                        // Also handle images directly in user dir (no date subdir)
+                        const directFiles = userItems.filter(i => i.type === 'file' && isImage(i));
+                        directFiles.forEach(img => img._date = '');
+                        userImgs.push(...directFiles);
+
+                        if (userImgs.length) allImages[dir.name] = userImgs;
                     } catch (e) { /* skip failed dirs */ }
                 }
 
@@ -242,15 +256,36 @@
                 return;
             }
             currentImages = imgs;
-            let html = '<div class="gallery-grid">';
+
+            // Group by date
+            const groups = {};
             imgs.forEach((img, idx) => {
-                const name = img.name.replace(/\.[^.]+$/, '');
-                html += `<div class="gallery-item" data-index="${idx}" onclick="openLightbox(${idx})" oncontextmenu="return false">
-                    <img src="${img.download_url}" alt="${escAttr(name)}" loading="lazy" draggable="false">
-                    <div class="item-overlay">${esc(name)}</div>
-                </div>`;
+                const date = img._date || '未分类';
+                if (!groups[date]) groups[date] = [];
+                groups[date].push(idx);
             });
-            html += '</div>';
+
+            let html = '';
+            const keys = Object.keys(groups).sort().reverse();
+            for (const [i, date] of keys.entries()) {
+                const indices = groups[date];
+                const displayDate = date.match(/^\d{4}-\d{2}$/) ? date.replace(/-/, '年') + '月' : date;
+                html += `<div style="font-size:0.85rem;font-weight:600;color:var(--text-secondary);padding:8px 2px 12px;letter-spacing:0.5px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:6px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                    ${esc(displayDate)}
+                </div>`;
+                html += '<div class="gallery-grid">';
+                for (const idx of indices) {
+                    const img = imgs[idx];
+                    const name = img.name.replace(/\.[^.]+$/, '');
+                    html += `<div class="gallery-item" data-index="${idx}" onclick="openLightbox(${idx})" oncontextmenu="return false">
+                        <img src="${img.download_url}" alt="${escAttr(name)}" loading="lazy" draggable="false">
+                        <div class="item-overlay">${esc(name)}</div>
+                    </div>`;
+                }
+                html += '</div>';
+                if (i < keys.length - 1) html += '<div style="height:20px"></div>';
+            }
             container.innerHTML = html;
         }
 
